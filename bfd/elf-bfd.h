@@ -2628,6 +2628,8 @@ extern bool _bfd_elf_maybe_strip_eh_frame_hdr
 
 extern bool _bfd_elf_sframe_present
   (struct bfd_link_info *) ATTRIBUTE_HIDDEN;
+extern bool _bfd_elf_sframe_present_input_bfds
+  (struct bfd_link_info *) ATTRIBUTE_HIDDEN;
 extern bool _bfd_elf_parse_sframe
   (bfd *, struct bfd_link_info *, asection *, struct elf_reloc_cookie *)
   ATTRIBUTE_HIDDEN;

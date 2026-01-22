@@ -171,6 +171,24 @@ sframe_read_value (bfd *abfd, bfd_byte *contents, unsigned int offset,
   return value;
 }
 
+/* Return true if any of the input BFDs contains at least one .sframe
+   section.  */
+
+bool
+_bfd_elf_sframe_present_input_bfds (struct bfd_link_info *info)
+{
+  /* Find if any input file has an .sframe section.  */
+  for (bfd *pbfd = info->input_bfds; pbfd != NULL; pbfd = pbfd->link.next)
+    if (bfd_get_flavour (pbfd) == bfd_target_elf_flavour
+	&& bfd_count_sections (pbfd) != 0)
+      {
+	asection *sec = bfd_get_section_by_name (pbfd, ".sframe");
+	if (sec != NULL)
+	  return true;
+      }
+  return false;
+}
+
 /* Return true if there is at least one non-empty .sframe section in
    input files.  Can only be called after ld has mapped input to
    output sections, and before sections are stripped.  */
