@@ -112,7 +112,7 @@ avr_elf_${EMULATION_NAME}_before_allocation (void)
    fake input file to hold the stub section and generate the section itself.  */
 
 static void
-avr_elf_create_output_section_statements (void)
+avr_elf_after_open_output (void)
 {
   flagword flags;
 
@@ -337,5 +337,5 @@ PARSE_AND_LIST_ARGS_CASES='
 LDEMUL_BEFORE_PARSE=avr_elf_before_parse
 LDEMUL_BEFORE_ALLOCATION=avr_elf_${EMULATION_NAME}_before_allocation
 LDEMUL_AFTER_ALLOCATION=avr_elf_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=avr_elf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=avr_elf_after_open_output
 LDEMUL_FINISH=avr_finish

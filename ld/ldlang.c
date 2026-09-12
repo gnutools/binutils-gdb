@@ -8611,7 +8611,7 @@ lang_process (void)
   lang_for_each_statement (ldlang_open_output);
   init_opb (NULL);
 
-  ldemul_create_output_section_statements ();
+  ldemul_after_open_output ();
 
   /* Add to the hash table all undefineds on the command line.  */
   lang_place_undefineds ();
@@ -11273,7 +11273,7 @@ cmdline_emit_object_only_section (void)
   /* Open the object-only file for output.  */
   lang_for_each_statement (ldlang_open_output);
 
-  ldemul_create_output_section_statements ();
+  ldemul_after_open_output ();
 
   if (!bfd_section_already_linked_table_init ())
     fatal (_("%P: Failed to create hash table\n"));

@@ -43,7 +43,7 @@ static bfd_signed_vma group_size = 1;
    fake input file to hold the stub sections.  */
 
 static void
-metagelf_create_output_section_statements (void)
+metagelf_after_open_output (void)
 {
   extern const bfd_target metag_elf32_vec;
 
@@ -314,4 +314,4 @@ PARSE_AND_LIST_ARGS_CASES='
 # Put these extra metagelf routines in ld_${EMULATION_NAME}_emulation
 #
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=metagelf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=metagelf_after_open_output

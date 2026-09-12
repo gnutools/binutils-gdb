@@ -141,7 +141,7 @@ m68hc11_elf_${EMULATION_NAME}_before_allocation (void)
    fake input file to hold the stub sections.  */
 
 static void
-m68hc11elf_create_output_section_statements (void)
+m68hc11elf_after_open_output (void)
 {
   if (bfd_get_flavour (link_info.output_bfd) != bfd_target_elf_flavour)
     {
@@ -351,4 +351,4 @@ PARSE_AND_LIST_ARGS_CASES='
 #
 LDEMUL_BEFORE_ALLOCATION=m68hc11_elf_${EMULATION_NAME}_before_allocation
 LDEMUL_AFTER_ALLOCATION=m68hc11elf_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=m68hc11elf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=m68hc11elf_after_open_output

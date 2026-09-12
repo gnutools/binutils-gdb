@@ -192,7 +192,7 @@ mips_add_stub_section (const char *stub_sec_name, asection *input_section,
 /* This is called before the input files are opened.  */
 
 static void
-mips_create_output_section_statements (void)
+mips_after_open_output (void)
 {
   struct elf_link_hash_table *htab;
 
@@ -291,4 +291,4 @@ PARSE_AND_LIST_ARGS_CASES='
 '
 
 LDEMUL_BEFORE_ALLOCATION=mips_before_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=mips_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=mips_after_open_output

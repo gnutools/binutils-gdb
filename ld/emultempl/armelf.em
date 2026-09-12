@@ -514,7 +514,7 @@ gld${EMULATION_NAME}_finish (void)
 /* This is a convenient point to tell BFD about target specific flags.
    After the output has been created, but before inputs are read.  */
 static void
-arm_elf_create_output_section_statements (void)
+arm_elf_after_open_output (void)
 {
   if (strstr (bfd_get_target (link_info.output_bfd), "arm") == NULL)
     {
@@ -745,7 +745,7 @@ PARSE_AND_LIST_ARGS_CASES='
 # the standard routines, so give them a different name.
 LDEMUL_BEFORE_ALLOCATION=arm_elf_before_allocation
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=arm_elf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=arm_elf_after_open_output
 
 # Replace the elf before_parse function with our own.
 LDEMUL_BEFORE_PARSE=gld"${EMULATION_NAME}"_before_parse

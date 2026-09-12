@@ -66,7 +66,7 @@ hppaelf_after_parse (void)
    fake input file to hold the stub sections.  */
 
 static void
-hppaelf_create_output_section_statements (void)
+hppaelf_after_open_output (void)
 {
   if (!(bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
 	&& (elf_object_id (link_info.output_bfd) == HPPA32_ELF_DATA
@@ -355,4 +355,4 @@ PARSE_AND_LIST_ARGS_CASES='
 #
 LDEMUL_AFTER_PARSE=hppaelf_after_parse
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=hppaelf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=hppaelf_after_open_output

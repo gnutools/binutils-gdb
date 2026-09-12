@@ -133,7 +133,7 @@ fragment <<EOF
 /* This is a convenient point to tell BFD about target specific flags.
    After the output has been created, but before inputs are read.  */
 static void
-csky_elf_create_output_section_statements (void)
+csky_elf_after_open_output (void)
 {
   if (!(bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
 	&& elf_object_id (link_info.output_bfd) == CSKY_ELF_DATA))
@@ -327,5 +327,5 @@ case ${target} in
     csky-*-linux-*) LDEMUL_BEFORE_PARSE=csky_elf_before_parse ;;
 esac
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=csky_elf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=csky_elf_after_open_output
 LDEMUL_FINISH=gld${EMULATION_NAME}_finish

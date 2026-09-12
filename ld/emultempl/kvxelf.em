@@ -276,7 +276,7 @@ gld${EMULATION_NAME}_finish (void)
 /* This is a convenient point to tell BFD about target specific flags.
    After the output has been created, but before inputs are read.  */
 static void
-kvx_elf_create_output_section_statements (void)
+kvx_elf_after_open_output (void)
 {
   if (!(bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
         && elf_object_id (link_info.output_bfd) == KVX_ELF_DATA))
@@ -309,7 +309,7 @@ EOF
 
 LDEMUL_BEFORE_ALLOCATION=elf${ELFSIZE}_kvx_before_allocation
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=kvx_elf_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=kvx_elf_after_open_output
 
 # Call the extra arm-elf function
 LDEMUL_FINISH=gld${EMULATION_NAME}_finish

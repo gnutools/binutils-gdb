@@ -418,7 +418,7 @@ PARSE_AND_LIST_ARGS_CASES=${PARSE_AND_LIST_ARGS_CASES}'
 
 # Put these extra ppc32elf routines in ld_${EMULATION_NAME}_emulation
 #
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=ppc_after_open_output
+LDEMUL_AFTER_OPEN_OUTPUT=ppc_after_open_output
 if test -z "$VXWORKS_BASE_EM_FILE" ; then
   LDEMUL_AFTER_CHECK_RELOCS=ppc_after_check_relocs
 fi

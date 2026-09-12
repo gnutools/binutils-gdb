@@ -74,7 +74,7 @@ static asection *toc_section = 0;
    fake input file to hold the stub sections.  */
 
 static void
-ppc_create_output_section_statements (void)
+ppc_after_open_output (void)
 {
   if (!(bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
 	&& elf_object_id (link_info.output_bfd) == PPC64_ELF_DATA))
@@ -981,7 +981,7 @@ PARSE_AND_LIST_ARGS_CASES=${PARSE_AND_LIST_ARGS_CASES}'
 # Put these extra ppc64elf routines in ld_${EMULATION_NAME}_emulation
 #
 LDEMUL_NEW_VERS_PATTERN=gld${EMULATION_NAME}_new_vers_pattern
-LDEMUL_CREATE_OUTPUT_SECTION_STATEMENTS=ppc_create_output_section_statements
+LDEMUL_AFTER_OPEN_OUTPUT=ppc_after_open_output
 LDEMUL_AFTER_OPEN=ppc_after_open
 LDEMUL_BEFORE_ALLOCATION=ppc_before_allocation
 LDEMUL_AFTER_ALLOCATION=gld${EMULATION_NAME}_after_allocation
