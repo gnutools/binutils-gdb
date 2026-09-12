@@ -49,6 +49,8 @@ nds32_elf_after_open_output (void)
       return;
     }
 
+  ldelf_after_open_output ();
+
   bfd_elf32_nds32_set_target_option (&link_info,
 				     relax_fp_as_gp,
 				     eliminate_gc_relocs,

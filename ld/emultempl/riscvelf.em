@@ -136,6 +136,7 @@ riscv_after_open_output (void)
       return;
     }
 
+  ldelf_after_open_output ();
   riscv_elf${ELFSIZE}_set_options (&link_info, &params);
 }
 

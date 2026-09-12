@@ -47,6 +47,8 @@ static struct ppc_elf_params params = { PLT_UNSET, 0, -1,
 static void
 ppc_after_open_output (void)
 {
+  ldelf_after_open_output ();
+
   if (params.emit_stub_syms < 0)
     params.emit_stub_syms = (link_info.emitrelocations
 			     || bfd_link_pic (&link_info));

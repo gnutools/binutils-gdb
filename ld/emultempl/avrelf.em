@@ -33,7 +33,6 @@ fragment <<EOF
 /* The fake file and it's corresponding section meant to hold
    the linker stubs if needed.  */
 
-static lang_input_statement_type *stub_file;
 static asection *avr_stub_section;
 
 /* Variables set by the command-line parameters and transferred
@@ -123,20 +122,7 @@ avr_elf_after_open_output (void)
       return;
     }
 
-  stub_file = lang_add_input_file ("linker stubs",
-				   lang_input_file_is_fake_enum,
-				   NULL);
-
-  stub_file->the_bfd = bfd_create ("linker stubs", link_info.output_bfd);
-  if (stub_file->the_bfd == NULL
-      || !bfd_set_arch_mach (stub_file->the_bfd,
-			     bfd_get_arch (link_info.output_bfd),
-			     bfd_get_mach (link_info.output_bfd)))
-    {
-      einfo (_("%X%P: can not create stub BFD: %E\n"));
-      return;
-    }
-  stub_file->the_bfd->flags |= BFD_LINKER_CREATED;
+  ldelf_after_open_output ();
 
   /* Now we add the stub section.  */
 
@@ -145,18 +131,10 @@ avr_elf_after_open_output (void)
   avr_stub_section = bfd_make_section_anyway_with_flags (stub_file->the_bfd,
 							 ".trampolines",
 							 flags);
-  if (avr_stub_section == NULL)
-    goto err_ret;
-
-  avr_stub_section->alignment_power = 1;
-
-  ldlang_add_file (stub_file);
-
-  return;
-
- err_ret:
-  einfo (_("%X%P: can not make stub section: %E\n"));
-  return;
+  if (avr_stub_section != NULL)
+    avr_stub_section->alignment_power = 1;
+  else
+    einfo (_("%X%P: can not make stub section: %E\n"));
 }
 
 /* Re-calculates the size of the stubs so that we won't waste space.  */

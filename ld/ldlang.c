@@ -7636,6 +7636,9 @@ lang_check (void)
       /* Don't check format of IR dummy file.  */
       if ((input_bfd->flags & BFD_PLUGIN) != 0)
 	continue;
+      if ((input_bfd->flags & BFD_LINKER_CREATED) != 0)
+	continue;
+
       compatible
 	= bfd_arch_get_compatible (input_bfd, link_info.output_bfd,
 				   command_line.accept_unknown_input_arch);

@@ -32,6 +32,7 @@ fragment <<EOF
 static void
 rx_linux_after_open_output (void)
 {
+  ldelf_after_open_output ();
   bfd_elf32_rx_set_target_flags (false, false);
 }
 

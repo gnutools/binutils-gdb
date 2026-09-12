@@ -4340,5 +4340,6 @@ bool bfd_avr_elf_merge_private_bfd_data (bfd *ibfd, struct bfd_link_info *info)
 #define bfd_elf32_bfd_merge_private_bfd_data \
 					bfd_avr_elf_merge_private_bfd_data
 #define elf_backend_special_sections	elf_avr_special_sections
+#define elf_backend_want_stub_bfd	1
 
 #include "elf32-target.h"

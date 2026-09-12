@@ -134,9 +134,6 @@ arm_elf_before_allocation (void)
   gld${EMULATION_NAME}_before_allocation ();
 }
 
-/* Fake input file for stubs.  */
-static lang_input_statement_type *stub_file;
-
 /* Whether we need to call gldarm_layout_sections_again.  */
 static int need_laying_out = 0;
 
@@ -539,19 +536,7 @@ arm_elf_after_open_output (void)
 	fatal (_("%P: %s: not a relocatable file: %E\n"), in_implib_filename);
     }
 
-  stub_file = lang_add_input_file ("linker stubs",
-				   lang_input_file_is_fake_enum,
-				   NULL);
-  stub_file->the_bfd = bfd_create ("linker stubs", link_info.output_bfd);
-  if (stub_file->the_bfd == NULL
-      || ! bfd_set_arch_mach (stub_file->the_bfd,
-			      bfd_get_arch (link_info.output_bfd),
-			      bfd_get_mach (link_info.output_bfd)))
-    {
-      fatal (_("%P: can not create BFD: %E\n"));
-      return;
-    }
-  ldlang_add_file (stub_file);
+  ldelf_after_open_output ();
 
   bfd_elf32_arm_set_target_params (&link_info, &params, stub_file->the_bfd);
 }

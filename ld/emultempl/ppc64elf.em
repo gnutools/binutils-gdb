@@ -42,9 +42,6 @@ static struct ppc64_elf_params params = { NULL,
 					  ${DEFAULT_PLT_STATIC_CHAIN-0}, -1, 5,
 					  -1, -1, 0, 0, -1, -1, 0};
 
-/* Fake input file for stubs.  */
-static lang_input_statement_type *stub_file;
-
 /* Whether we need to call ppc_layout_sections_again.  */
 static int need_laying_out = 0;
 
@@ -76,32 +73,18 @@ static asection *toc_section = 0;
 static void
 ppc_after_open_output (void)
 {
-  if (!(bfd_get_flavour (link_info.output_bfd) == bfd_target_elf_flavour
-	&& elf_object_id (link_info.output_bfd) == PPC64_ELF_DATA))
-    return;
+  ldelf_after_open_output ();
 
-  link_info.wrap_char = '.';
-
-  stub_file = lang_add_input_file ("linker stubs",
-				   lang_input_file_is_fake_enum,
-				   NULL);
-  stub_file->the_bfd = bfd_create ("linker stubs", link_info.output_bfd);
-  if (stub_file->the_bfd == NULL
-      || !bfd_set_arch_mach (stub_file->the_bfd,
-			     bfd_get_arch (link_info.output_bfd),
-			     bfd_get_mach (link_info.output_bfd)))
+  if (stub_file)
     {
-      fatal (_("%P: can not create BFD: %E\n"));
-      return;
-    }
+      link_info.wrap_char = '.';
 
-  stub_file->the_bfd->flags |= BFD_LINKER_CREATED;
-  ldlang_add_file (stub_file);
-  params.stub_bfd = stub_file->the_bfd;
-  if (params.save_restore_funcs < 0)
-    params.save_restore_funcs = !bfd_link_relocatable (&link_info);
-  if (!ppc64_elf_init_stub_bfd (&link_info, &params))
-    fatal (_("%P: can not init BFD: %E\n"));
+      params.stub_bfd = stub_file->the_bfd;
+      if (params.save_restore_funcs < 0)
+	params.save_restore_funcs = !bfd_link_relocatable (&link_info);
+      if (!ppc64_elf_init_stub_bfd (&link_info, &params))
+	fatal (_("%P: can not init BFD: %E\n"));
+    }
 }
 
 /* Called after opening files but before mapping sections.  */

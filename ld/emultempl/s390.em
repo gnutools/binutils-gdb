@@ -33,6 +33,8 @@ static struct s390_elf_params params = { 0 };
 static void
 s390_elf_after_open_output (void)
 {
+  ldelf_after_open_output ();
+
   if (!bfd_elf_s390_set_options (&link_info, &params))
     fatal (_("%P: can not init BFD: %E\n"));
 }

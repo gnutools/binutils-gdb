@@ -91,9 +91,6 @@ aarch64_elf_before_allocation (void)
   gld${EMULATION_NAME}_before_allocation ();
 }
 
-/* Fake input file for stubs.  */
-static lang_input_statement_type *stub_file;
-
 /* Whether we need to call gldarm_layout_sections_again.  */
 static int need_laying_out = 0;
 
@@ -335,30 +332,19 @@ aarch64_elf_after_open_output (void)
       return;
     }
 
-  stub_file = lang_add_input_file ("linker stubs",
-				   lang_input_file_is_fake_enum,
-				   NULL);
-  stub_file->the_bfd = bfd_create ("linker stubs", link_info.output_bfd);
-  if (stub_file->the_bfd == NULL
-      || ! bfd_set_arch_mach (stub_file->the_bfd,
-			      bfd_get_arch (link_info.output_bfd),
-			      bfd_get_mach (link_info.output_bfd)))
-    {
-      fatal (_("%P: can not create BFD: %E\n"));
-      return;
-    }
-  ldlang_add_file (stub_file);
+  ldelf_after_open_output ();
 
-  bfd_elf${ELFSIZE}_aarch64_set_options (&link_info,
-				 no_enum_size_warning,
-				 no_wchar_size_warning,
-				 pic_veneer,
-				 fix_erratum_835769, fix_erratum_843419,
-				 no_apply_dynamic_relocs,
-				 &sw_protections,
-				 &memtag_opts,
-				 stub_file->the_bfd);
-
+  if (stub_file)
+    bfd_elf${ELFSIZE}_aarch64_set_options (&link_info,
+				   no_enum_size_warning,
+				   no_wchar_size_warning,
+				   pic_veneer,
+				   fix_erratum_835769,
+				   fix_erratum_843419,
+				   no_apply_dynamic_relocs,
+				   &sw_protections,
+				   &memtag_opts,
+				   stub_file->the_bfd);
 }
 
 static bool

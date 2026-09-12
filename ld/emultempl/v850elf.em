@@ -67,6 +67,8 @@ v850_after_open_output (void)
 	       " whilst linking %s binaries\n"), "V850");
       return;
     }
+
+  ldelf_after_open_output ();
 }
 
 

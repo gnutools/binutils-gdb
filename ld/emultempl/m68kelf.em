@@ -192,6 +192,7 @@ m68k_elf_after_allocation (void)
 static void
 elf_m68k_after_open_output (void)
 {
+  ldelf_after_open_output ();
   bfd_elf_m68k_set_target_options (&link_info, got_handling);
 }
 
