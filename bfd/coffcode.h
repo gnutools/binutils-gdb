@@ -4411,43 +4411,43 @@ coff_set_section_contents (bfd * abfd,
     }
 
 #if defined(_LIB) && !defined(TARG_AUX)
-   /* The physical address field of a .lib section is used to hold the
-      number of shared libraries in the section.  This code counts the
-      number of sections being written, and increments the lma field
-      with the number.
+  /* The physical address field of a .lib section is used to hold the
+     number of shared libraries in the section.  This code counts the
+     number of sections being written, and increments the lma field
+     with the number.
 
-      I have found no documentation on the contents of this section.
-      Experimentation indicates that the section contains zero or more
-      records, each of which has the following structure:
+     I have found no documentation on the contents of this section.
+     Experimentation indicates that the section contains zero or more
+     records, each of which has the following structure:
 
-      - a (four byte) word holding the length of this record, in words,
-      - a word that always seems to be set to "2",
-      - the path to a shared library, null-terminated and then padded
-	to a whole word boundary.
+     - a (four byte) word holding the length of this record, in words,
+     - a word that always seems to be set to "2",
+     - the path to a shared library, null-terminated and then padded
+     to a whole word boundary.
 
-      bfd_assert calls have been added to alert if an attempt is made
-      to write a section which doesn't follow these assumptions.  The
-      code has been tested on ISC 4.1 by me, and on SCO by Robert Lipe
-      <robertl@arnet.com> (Thanks!).
+     bfd_assert calls have been added to alert if an attempt is made
+     to write a section which doesn't follow these assumptions.  The
+     code has been tested on ISC 4.1 by me, and on SCO by Robert Lipe
+     <robertl@arnet.com> (Thanks!).
 
-      Gvran Uddeborg <gvran@uddeborg.pp.se>.  */
-    if (strcmp (section->name, _LIB) == 0)
-      {
-	bfd_byte *rec, *recend;
+     Gvran Uddeborg <gvran@uddeborg.pp.se>.  */
+  if (count >= 4 && strcmp (section->name, _LIB) == 0)
+    {
+      bfd_size_type off = 0;
 
-	rec = (bfd_byte *) location;
-	recend = rec + count;
-	while (recend - rec >= 4)
-	  {
-	    size_t len = bfd_get_32 (abfd, rec);
-	    if (len == 0 || len > (size_t) (recend - rec) / 4)
-	      break;
-	    rec += len * 4;
-	    ++section->lma;
-	  }
+      while (off <= count - 4)
+	{
+	  uint32_t len = bfd_get_32 (abfd, (bfd_byte *) location + off);
+	  if (len == 0
+	      || len > (uint32_t) -1 / 4
+	      || len * 4 > count - off)
+	    break;
+	  off += len * 4;
+	  ++section->lma;
+	}
 
-	BFD_ASSERT (rec == recend);
-      }
+      BFD_ASSERT (off == count);
+    }
 #endif
 
   /* Don't write out bss sections - one way to do this is to
