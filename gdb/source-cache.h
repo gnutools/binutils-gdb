@@ -61,6 +61,15 @@ public:
   bool get_source_lines (struct symtab *s, int first_line,
 			 int last_line, std::string *lines_out);
 
+  /* Get the source text for the source file FILENAME.  FIRST_LINE and
+     LAST_LINE are the first and last lines to return; line numbers are
+     1-based.  If the file cannot be read, or if the line numbers are out
+     of range, false is returned.  Otherwise, LINES_OUT is set to the
+     desired text.  The returned text will never be styled with ANSI
+     terminal escapes.  */
+  bool get_source_lines (const std::string &filename, int first_line,
+			 int last_line, std::string *lines_out);
+
   /* Remove all the items from the source cache.  */
   void clear ()
   {
@@ -88,9 +97,22 @@ private:
   std::string get_plain_source_lines (struct symtab *s,
 				      const std::string &fullname);
 
+  /* A helper function for get_source_lines; reads a source file.
+     Returns the contents of FILENAME; or throws an exception on
+     error.  This also updates m_offset_cache.  */
+  std::string get_plain_source_lines (const std::string &filename);
+
   /* A helper function that the data for the given symtab is entered
      into both caches.  Returns false on error.  */
   bool ensure (struct symtab *s);
+
+  /* A helper function that the data for the given FILENAME is entered
+     into both caches.  Returns false on error.  */
+  bool ensure (const std::string &filename);
+
+  /* A helper for 'ensure'; checks if a given filename is present in the
+     cache.  Returns true if it is, otherwise, returns false.  */
+  bool is_cached (const std::string &filename);
 
   /* The contents of the source text cache.  */
   std::vector<source_text> m_source_map;

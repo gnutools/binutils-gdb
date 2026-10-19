@@ -990,12 +990,21 @@ protected:
   /* Helper method that does the basic work of re_set.  */
   void re_set_default (program_space *pspace);
 
-  /* Helper method for re_set_default.  Checks if the executable was
-     reloaded and if so, attempts to adjust the breakpoint location
-     using source tracking.  EXPANDED may be updated if the location
-     is adjusted.  */
-  void adjust_bp_for_source_tracking (program_space *filter_pspace,
-				      std::vector<symtab_and_line> &expanded);
+  /* Helper method for re_set_default.  For source tracked breakpoints, if
+     the source file in which the breakpoint was placed has been updated,
+     and the BFD in which the breakpoint was placed has also been
+     recompiled, then check to see if the breakpoint source line has moved.
+     If it has then update this breakpoints locspec to reflect the new
+     location of the breakpoint source line.  Non source tracked
+     breakpoints are ignored by this function, and not changed.  */
+  void adjust_breakpoint_location_for_source_tracking ();
+
+  /* Update the BP_SOURCE tracking information based on SALS.  If the
+     source tracking feature is turned off then this does nothing.  If
+     SALS is not suitable for source tracking, of this breakpoint's
+     locspec is not suitable for source tracking.*/
+  void capture_source_tracking_information
+	(gdb::array_view<const symtab_and_line> sals);
 
   /* Find the SaL locations corresponding to the given LOCATION.
      On return, FOUND will be 1 if any SaL was found, zero otherwise.  */

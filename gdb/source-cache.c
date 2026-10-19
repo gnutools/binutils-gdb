@@ -139,6 +139,44 @@ source_cache::get_plain_source_lines (struct symtab *s,
   return lines;
 }
 
+/* See source-cache.h.  */
+
+std::string
+source_cache::get_plain_source_lines (const std::string &filename)
+{
+  scoped_fd desc (open (filename.c_str (), O_RDONLY));
+  if (desc.get () < 0)
+    perror_with_name (filename.c_str (), -desc.get ());
+
+  struct stat st;
+  if (fstat (desc.get (), &st) < 0)
+    perror_with_name (filename.c_str ());
+
+  std::string lines;
+  lines.resize (st.st_size);
+  if (myread (desc.get (), &lines[0], lines.size ()) < 0)
+    perror_with_name (filename.c_str ());
+
+  std::vector<off_t> offsets;
+  offsets.push_back (0);
+  for (size_t offset = lines.find ('\n');
+       offset != std::string::npos;
+       offset = lines.find ('\n', offset))
+    {
+      ++offset;
+      /* A newline at the end does not start a new line.  It would
+	 seem simpler to just strip the newline in this function, but
+	 then "list" won't print the final newline.  */
+      if (offset != lines.size ())
+	offsets.push_back (offset);
+    }
+
+  offsets.shrink_to_fit ();
+  m_offset_cache.emplace (filename, std::move (offsets));
+
+  return lines;
+}
+
 #ifdef HAVE_SOURCE_HIGHLIGHT
 
 /* Return the Source Highlight language name, given a gdb language
@@ -306,18 +344,16 @@ static void gnu_source_highlight_test ()
 /* See source-cache.h.  */
 
 bool
-source_cache::ensure (struct symtab *s)
+source_cache::is_cached (const std::string &filename)
 {
-  std::string fullname = symtab_to_fullname (s);
-
   size_t size = m_source_map.size ();
   for (int i = 0; i < size; ++i)
     {
-      if (m_source_map[i].fullname == fullname)
+      if (m_source_map[i].fullname == filename)
 	{
 	  /* This should always hold, because we create the file offsets
 	     when reading the file.  */
-	  gdb_assert (m_offset_cache.find (fullname)
+	  gdb_assert (m_offset_cache.find (filename)
 		      != m_offset_cache.end ());
 	  /* Not strictly LRU, but at least ensure that the most
 	     recently used entry is always the last candidate for
@@ -331,7 +367,7 @@ source_cache::ensure (struct symtab *s)
 	     which case, this (unstyled) content, is the best we can do.  */
 	  if (((source_styling && gdb_stdout->can_emit_style_escape ())
 	       == m_source_map[size - 1].styled)
-	      || m_no_styling_files.count (fullname) > 0)
+	      || m_no_styling_files.count (filename) > 0)
 	    return true;
 
 	  /* We found a match, but styling status doesn't match the desired
@@ -343,8 +379,19 @@ source_cache::ensure (struct symtab *s)
 	}
     }
 
+  return false;
+}
+
+/* See source-cache.h.  */
+
+bool
+source_cache::ensure (struct symtab *s)
+{
+  std::string fullname = symtab_to_fullname (s);
+  if (is_cached (fullname))
+    return true;
+
   std::string contents;
-  bool styled_p = false;
   try
     {
       contents = get_plain_source_lines (s, fullname);
@@ -355,6 +402,7 @@ source_cache::ensure (struct symtab *s)
       return false;
     }
 
+  bool styled_p = false;
   if (source_styling && gdb_stdout->can_emit_style_escape ()
       && m_no_styling_files.count (fullname) == 0)
     {
@@ -392,6 +440,39 @@ source_cache::ensure (struct symtab *s)
 
   source_text result
     = { std::move (fullname), std::move (contents), styled_p };
+  m_source_map.push_back (std::move (result));
+
+  if (m_source_map.size () > MAX_ENTRIES)
+    {
+      auto iter = m_source_map.begin ();
+      m_offset_cache.erase (iter->fullname);
+      m_source_map.erase (iter);
+    }
+
+  return true;
+}
+
+/* See source-cache.h.  */
+
+bool
+source_cache::ensure (const std::string &filename)
+{
+  if (is_cached (filename))
+    return true;
+
+  std::string contents;
+  try
+    {
+      contents = get_plain_source_lines (filename);
+    }
+  catch (const gdb_exception_error &e)
+    {
+      /* If 's' is not found, an exception is thrown.  */
+      return false;
+    }
+
+  source_text result
+    = { filename, std::move (contents), false };
   m_source_map.push_back (std::move (result));
 
   if (m_source_map.size () > MAX_ENTRIES)
@@ -477,6 +558,22 @@ source_cache::get_source_lines (struct symtab *s, int first_line,
     return false;
 
   if (!ensure (s))
+    return false;
+
+  return extract_lines (m_source_map.back ().contents,
+			first_line, last_line, lines);
+}
+
+/* See source-cache.h.  */
+
+bool
+source_cache::get_source_lines (const std::string &filename, int first_line,
+				int last_line, std::string *lines)
+{
+  if (first_line < 1 || last_line < 1 || first_line > last_line)
+    return false;
+
+  if (!ensure (filename))
     return false;
 
   return extract_lines (m_source_map.back ().contents,

@@ -1,0 +1,70 @@
+# Copyright 2026 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Create a breakpoint in a function.  Update the source such that the
+# previous breakpoint line is now outside of all functions, recompile,
+# and reload the executable.
+#
+# GDB should correctly spot that the source has been updated and find
+# the new breakpoint location.
+
+# This test restarts the inferior with 'start'.  This doesn't work
+# when using plain 'gdbserver'.
+require !use_gdb_stub
+
+load_lib "source-tracking.exp"
+
+standard_testfile -1.c -2.c
+
+set build_srcfile [standard_output_file ${testfile}.c]
+
+remote_exec build "cp $srcdir/$subdir/$srcfile $build_srcfile"
+
+if { [prepare_for_testing "failed to prepare" $testfile $build_srcfile] } {
+    return
+}
+
+if {![runto_main]} {
+    return
+}
+
+gdb_test_no_output "set breakpoint source-tracking enabled on" \
+    "enable source tracking breakpoints"
+
+# Get initial breakpoint line numbers.
+set lineno [gdb_get_line_number "/* Breakpoint here.  */" $build_srcfile]
+
+gdb_breakpoint ${build_srcfile}:${lineno}
+set bp_num [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
+		"get number for breakpoint"]
+
+check_bp_tracked $bp_num $lineno $build_srcfile \
+    "breakpoint is initially tracking the expected line"
+
+# Copy in the updated source file and rebuild.
+if {[replace_source_and_rebuild $srcfile2 $build_srcfile] == -1} {
+    return
+}
+
+# Reload the executable, this will update the source tracking
+# breakpoints.
+gdb_test "with confirm off -- start" ".*" \
+    "start after changing main source file"
+
+# Get updated breakpoint line.
+set lineno [gdb_get_line_number "/* Breakpoint here.  */" $build_srcfile]
+
+check_bp_tracked $bp_num $lineno $build_srcfile \
+    "breakpoint is tracking the updated line"
