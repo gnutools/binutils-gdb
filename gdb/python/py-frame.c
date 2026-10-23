@@ -103,7 +103,7 @@ struct frame_object : public PyObject
 
   /* Implementation of gdb.Frame.function (self) -> gdb.Symbol.
      Returns the symbol for the function corresponding to this frame.  */
-  gdbpy_ref<> function ();
+  symbol *function ();
 
   /* Implementation of gdb.Frame.older (self) -> gdb.Frame.
      Returns the frame immediately older (outer) to this frame, or None if
@@ -267,7 +267,7 @@ frame_object::block ()
 }
 
 
-gdbpy_ref<>
+symbol *
 frame_object::function ()
 {
   frame_info_ptr frame = require_frame ();
@@ -277,10 +277,7 @@ frame_object::function ()
   gdb::unique_xmalloc_ptr<char> funname
     = find_frame_funname (frame, &funlang, &sym);
 
-  if (sym != nullptr)
-    return symbol_to_symbol_object (sym);
-
-  return py_none ();
+  return sym;
 }
 
 /* Convert a frame_info struct to a Python Frame object.

@@ -120,6 +120,16 @@ to_python (gdbpy_ref<> &&value)
   return value.release ();
 }
 
+static inline PyObject *
+to_python (symbol *sym)
+{
+  if (sym == nullptr)
+    return py_none ().release ();
+  /* Note that currently this might return NULL on error; but that is
+     fine in this context.  */
+  return symbol_to_symbol_object (sym).release ();
+}
+
 /* An instantiation of this function is used when calling a gdb method
    from Python.  It accepts some number of arguments (normally
    gdbpy_borrowed_ref or gdbpy_opt_borrowed_ref), and then calls the

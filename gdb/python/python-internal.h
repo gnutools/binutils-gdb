@@ -514,10 +514,10 @@ const char *gdbpy_frame_stop_reason_string (gdbpy_borrowed_ref<> args,
 					    gdbpy_opt_borrowed_ref<> kw);
 gdbpy_ref<> gdbpy_lookup_symbol (gdbpy_borrowed_ref<> args,
 				 gdbpy_opt_borrowed_ref<> kw);
-gdbpy_ref<> gdbpy_lookup_global_symbol (gdbpy_borrowed_ref<> args,
-					gdbpy_opt_borrowed_ref<> kw);
-gdbpy_ref<> gdbpy_lookup_static_symbol (gdbpy_borrowed_ref<> args,
-					gdbpy_opt_borrowed_ref<> kw);
+symbol *gdbpy_lookup_global_symbol (gdbpy_borrowed_ref<> args,
+				    gdbpy_opt_borrowed_ref<> kw);
+symbol *gdbpy_lookup_static_symbol (gdbpy_borrowed_ref<> args,
+				    gdbpy_opt_borrowed_ref<> kw);
 gdbpy_ref<> gdbpy_lookup_static_symbols (gdbpy_borrowed_ref<> args,
 					 gdbpy_opt_borrowed_ref<> kw);
 PyObject *gdbpy_start_recording (PyObject *self, PyObject *args);
@@ -552,6 +552,7 @@ void gdbpy_register_tui_window (gdbpy_borrowed_ref<> args,
 gdbpy_ref<> symtab_and_line_to_sal_object (struct symtab_and_line sal);
 gdbpy_ref<> symtab_to_symtab_object (struct symtab *symtab);
 gdbpy_ref<> symbol_to_symbol_object (struct symbol *sym);
+gdbpy_ref<> safe_symbol_to_symbol_object (struct symbol *sym);
 gdbpy_ref<> block_to_block_object (const struct block *block,
 				   struct objfile *objfile);
 gdbpy_ref<> value_to_value_object (struct value *v);

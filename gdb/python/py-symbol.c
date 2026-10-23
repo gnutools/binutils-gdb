@@ -289,6 +289,15 @@ symbol_to_symbol_object (struct symbol *sym)
   return gdbpy_ref<> (sym_obj);
 }
 
+gdbpy_ref<>
+safe_symbol_to_symbol_object (symbol *sym)
+{
+  gdbpy_ref<> result = symbol_to_symbol_object (sym);
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
+}
+
 /* Return the symbol that is wrapped by this symbol object.  */
 struct symbol *
 symbol_object_to_symbol (PyObject *obj)
@@ -363,14 +372,8 @@ gdbpy_lookup_symbol (gdbpy_borrowed_ref<> args, gdbpy_opt_borrowed_ref<> kw)
   gdbpy_ref<> ret_tuple = gdbpy_tuple_new (2);
 
   gdbpy_ref<> sym_obj;
-  if (symbol)
-    {
-      sym_obj = symbol_to_symbol_object (symbol);
-      /* FIXME: Python safety.  symbol_to_symbol_object should throw,
-	 but the other callers aren't ready for this yet.  */
-      if (sym_obj == nullptr)
-	throw gdb_python_exception ();
-    }
+  if (symbol != nullptr)
+    sym_obj = safe_symbol_to_symbol_object (symbol);
   else
     sym_obj = py_none ();
 
@@ -386,7 +389,7 @@ gdbpy_lookup_symbol (gdbpy_borrowed_ref<> args, gdbpy_opt_borrowed_ref<> kw)
 /* Implementation of
    gdb.lookup_global_symbol (name [, domain]) -> symbol or None.  */
 
-gdbpy_ref<>
+symbol *
 gdbpy_lookup_global_symbol (gdbpy_borrowed_ref<> args,
 			    gdbpy_opt_borrowed_ref<> kw)
 {
@@ -398,27 +401,13 @@ gdbpy_lookup_global_symbol (gdbpy_borrowed_ref<> args,
 				      &domain);
 
   domain_search_flags flags = from_scripting_domain (domain);
-  struct symbol *symbol = lookup_global_symbol (name, NULL, flags).symbol;
-
-  gdbpy_ref<> sym_obj;
-  if (symbol != nullptr)
-    {
-      /* FIXME: Python safety.  symbol_to_symbol_object should throw,
-	 but the other callers aren't ready for this yet.  */
-      sym_obj = symbol_to_symbol_object (symbol);
-      if (sym_obj == nullptr)
-	throw gdb_python_exception ();
-    }
-  else
-    sym_obj = py_none ();
-
-  return sym_obj;
+  return lookup_global_symbol (name, NULL, flags).symbol;
 }
 
 /* Implementation of
    gdb.lookup_static_symbol (name [, domain]) -> symbol or None.  */
 
-gdbpy_ref<>
+symbol *
 gdbpy_lookup_static_symbol (gdbpy_borrowed_ref<> args,
 			    gdbpy_opt_borrowed_ref<> kw)
 {
@@ -455,19 +444,7 @@ gdbpy_lookup_static_symbol (gdbpy_borrowed_ref<> args,
   if (symbol == nullptr)
     symbol = lookup_static_symbol (name, flags).symbol;
 
-  gdbpy_ref<> sym_obj;
-  if (symbol != nullptr)
-    {
-      /* FIXME: Python safety.  symbol_to_symbol_object should throw,
-	 but the other callers aren't ready for this yet.  */
-      sym_obj = symbol_to_symbol_object (symbol);
-      if (sym_obj == nullptr)
-	throw gdb_python_exception ();
-    }
-  else
-    sym_obj = py_none ();
-
-  return sym_obj;
+  return symbol;
 }
 
 /* Implementation of
@@ -512,11 +489,7 @@ gdbpy_lookup_static_symbols (gdbpy_borrowed_ref<> args,
 
 	    if (symbol != nullptr)
 	      {
-		/* FIXME: Python safety.  symbol_to_symbol_object should throw,
-		   but the other callers aren't ready for this yet.  */
-		gdbpy_ref<> sym_obj = symbol_to_symbol_object (symbol);
-		if (sym_obj == nullptr)
-		  throw gdb_python_exception ();
+		gdbpy_ref<> sym_obj = safe_symbol_to_symbol_object (symbol);
 		gdbpy_list_append (return_list, sym_obj);
 	      }
 	  }
