@@ -121,6 +121,17 @@ to_python (gdbpy_ref<> &&value)
 }
 
 static inline PyObject *
+to_python (const frame_info_ptr &frame)
+{
+  if (frame.is_null ())
+    return py_none ().release ();
+
+  /* Note that currently this might return NULL on error; but that is
+     fine in this context.  */
+  return frame_info_to_frame_object (frame).release ();
+}
+
+static inline PyObject *
 to_python (symbol *sym)
 {
   if (sym == nullptr)

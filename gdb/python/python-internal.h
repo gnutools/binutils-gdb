@@ -523,8 +523,8 @@ gdbpy_ref<> gdbpy_lookup_static_symbols (gdbpy_borrowed_ref<> args,
 PyObject *gdbpy_start_recording (PyObject *self, PyObject *args);
 PyObject *gdbpy_current_recording (PyObject *self, PyObject *args);
 PyObject *gdbpy_stop_recording (PyObject *self, PyObject *args);
-gdbpy_ref<> gdbpy_newest_frame ();
-gdbpy_ref<> gdbpy_selected_frame ();
+frame_info_ptr gdbpy_newest_frame ();
+frame_info_ptr gdbpy_selected_frame ();
 PyObject *gdbpy_lookup_type (PyObject *self, PyObject *args, PyObject *kw);
 int gdbpy_is_field (PyObject *obj);
 PyObject *gdbpy_create_lazy_string_object (CORE_ADDR address, long length,
@@ -558,6 +558,7 @@ gdbpy_ref<> block_to_block_object (const struct block *block,
 gdbpy_ref<> value_to_value_object (struct value *v);
 gdbpy_ref<> type_to_type_object (struct type *);
 gdbpy_ref<> frame_info_to_frame_object (const frame_info_ptr &frame);
+gdbpy_ref<> safe_frame_info_to_frame_object (const frame_info_ptr &frame);
 gdbpy_ref<> symtab_to_linetable_object (PyObject *symtab);
 gdbpy_ref<> pspace_to_pspace_object (struct program_space *);
 PyObject *pspy_get_printers (PyObject *, void *);

@@ -108,12 +108,12 @@ struct frame_object : public PyObject
   /* Implementation of gdb.Frame.older (self) -> gdb.Frame.
      Returns the frame immediately older (outer) to this frame, or None if
      there isn't one.  */
-  gdbpy_ref<> older ();
+  frame_info_ptr older ();
 
   /* Implementation of gdb.Frame.newer (self) -> gdb.Frame.
      Returns the frame immediately newer (inner) to this frame, or None if
      there isn't one.  */
-  gdbpy_ref<> newer ();
+  frame_info_ptr newer ();
 
   /* Implementation of gdb.Frame.find_sal (self) -> gdb.Symtab_and_line.
      Returns the frame's symtab and line.  */
@@ -282,8 +282,6 @@ frame_object::function ()
 
 /* Convert a frame_info struct to a Python Frame object.
    Sets a Python exception and returns NULL on error.  */
-/* FIXME: Python safety.  This function should be converted, but the
-   callers aren't ready yet.  */
 
 gdbpy_ref<>
 frame_info_to_frame_object (const frame_info_ptr &frame)
@@ -307,27 +305,26 @@ frame_info_to_frame_object (const frame_info_ptr &frame)
 }
 
 gdbpy_ref<>
+safe_frame_info_to_frame_object (const frame_info_ptr &frame)
+{
+  gdbpy_ref<> result = frame_info_to_frame_object (frame);
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
+}
+
+frame_info_ptr
 frame_object::older ()
 {
   frame_info_ptr frame = require_frame ();
-  frame_info_ptr prev = get_prev_frame (frame);
-
-  if (prev)
-    return frame_info_to_frame_object (prev);
-
-  return py_none ();
+  return get_prev_frame (frame);
 }
 
-gdbpy_ref<>
+frame_info_ptr
 frame_object::newer ()
 {
   frame_info_ptr frame = require_frame ();
-  frame_info_ptr next = get_next_frame (frame);
-
-  if (next)
-    return frame_info_to_frame_object (next);
-
-  return py_none ();
+  return get_next_frame (frame);
 }
 
 gdbpy_ref<>
@@ -431,29 +428,19 @@ frame_object::static_link ()
 /* Implementation of gdb.newest_frame () -> gdb.Frame.
    Returns the newest frame object.  */
 
-gdbpy_ref<>
+frame_info_ptr
 gdbpy_newest_frame ()
 {
-  /* FIXME: Python safety.  Convert frame_info_to_frame_object.  */
-  gdbpy_ref<> result = frame_info_to_frame_object (get_current_frame ());
-  if (result == nullptr)
-    throw gdb_python_exception ();
-  return result;
+  return get_current_frame ();
 }
 
 /* Implementation of gdb.selected_frame () -> gdb.Frame.
    Returns the selected frame object.  */
 
-gdbpy_ref<>
+frame_info_ptr
 gdbpy_selected_frame ()
 {
-  frame_info_ptr frame
-    = get_selected_frame ("No frame is currently selected.");
-  /* FIXME: Python safety.  Convert frame_info_to_frame_object.  */
-  gdbpy_ref<> result = frame_info_to_frame_object (frame);
-  if (result == nullptr)
-    throw gdb_python_exception ();
-  return result;
+  return get_selected_frame ("No frame is currently selected.");
 }
 
 /* Implementation of gdb.stop_reason_string (Integer) -> String.

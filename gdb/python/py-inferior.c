@@ -1023,7 +1023,7 @@ python_context_changed (user_selected_what selection)
   try
     {
       if (has_stack_frames ())
-	frame_obj = gdbpy_selected_frame ();
+	frame_obj = safe_frame_info_to_frame_object (gdbpy_selected_frame ());
       else
 	frame_obj = py_none ();
     }
