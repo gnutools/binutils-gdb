@@ -148,6 +148,17 @@ target_to_connection_object (process_stratum_target *target)
   return conn_obj;
 }
 
+/* See python-internal.h.  */
+
+gdbpy_ref<>
+safe_target_to_connection_object (process_stratum_target *target)
+{
+  gdbpy_ref<> result = target_to_connection_object (target);
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
+}
+
 /* Return a list of gdb.TargetConnection objects, one for each currently
    active connection.  The returned list is in no particular order.  */
 
@@ -160,11 +171,7 @@ gdbpy_connections ()
     {
       gdb_assert (target != nullptr);
 
-      gdbpy_ref<> conn = target_to_connection_object (target);
-      /* FIXME: Python safety.  target_to_connection_object should
-	 throw on error.  */
-      if (conn == nullptr)
-	return nullptr;
+      gdbpy_ref<> conn = safe_target_to_connection_object (target);
       gdb_assert (conn.get () != Py_None);
 
       gdbpy_list_append (list, conn);

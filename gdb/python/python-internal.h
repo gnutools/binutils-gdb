@@ -587,6 +587,9 @@ PyObject *gdbpy_buffer_to_membuf (gdb::unique_xmalloc_ptr<gdb_byte> buffer,
 
 struct process_stratum_target;
 gdbpy_ref<> target_to_connection_object (process_stratum_target *target);
+/* A safe variant of target_to_connection_object; this throws on
+   error.  */
+gdbpy_ref<> safe_target_to_connection_object (process_stratum_target *target);
 gdbpy_ref<> gdbpy_connections ();
 
 const struct block *block_object_to_block (PyObject *obj);
