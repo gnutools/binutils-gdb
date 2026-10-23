@@ -1661,11 +1661,7 @@ gdbpy_breakpoint_location_object::get_source_location () const
     {
       gdbpy_ref<> tup = gdbpy_tuple_new (2);
       gdbpy_ref<> filename = bploc_filepath (bp_loc->symtab);
-      auto line = gdb_py_object_from_ulongest (bp_loc->line_number);
-      /* FIXME: Python safety: gdb_py_object_from_ulongest should
-	 throw.  */
-      if (line == nullptr)
-	throw gdb_python_exception ();
+      auto line = gdbpy_safe_from_ulongest (bp_loc->line_number);
       gdbpy_tuple_set_item (tup, 0, std::move (filename));
       gdbpy_tuple_set_item (tup, 1, std::move (line));
       return tup;
@@ -1683,11 +1679,7 @@ gdbpy_breakpoint_location_object::get_thread_groups () const
     {
       if (inf->pspace == bp_loc->pspace)
 	{
-	  gdbpy_ref<> num = gdb_py_object_from_ulongest (inf->num);
-	  /* FIXME: Python safety: gdb_py_object_from_ulongest should
-	     throw.  */
-	  if (num == nullptr)
-	    throw gdb_python_exception ();
+	  gdbpy_ref<> num = gdbpy_safe_from_ulongest (inf->num);
 	  gdbpy_list_append (list, num);
 	}
     }

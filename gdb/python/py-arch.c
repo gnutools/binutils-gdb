@@ -198,21 +198,11 @@ arch_object::disassemble (gdbpy_borrowed_ref<> args,
       string_file stb (styling_p);
       int insn_len = gdb_print_insn (gdbarch, pc, &stb, NULL);
 
-      /* FIXME: Python safety.  Eventually gdb_py_object_from_ulongest
-	 should throw.  */
-      gdbpy_ref<> pc_obj = gdb_py_object_from_ulongest (pc);
-      if (pc_obj == nullptr)
-	throw gdb_python_exception ();
-
+      gdbpy_ref<> pc_obj = gdbpy_safe_from_ulongest (pc);
       gdbpy_ref<> asm_obj = gdbpy_unicode_from_string (!stb.empty ()
 						       ? stb.c_str ()
 						       : "<unknown>");
-
-      /* FIXME: Python safety.  Eventually gdb_py_object_from_longest
-	 should throw.  */
-      gdbpy_ref<> len_obj = gdb_py_object_from_longest (insn_len);
-      if (len_obj == nullptr)
-	throw gdb_python_exception ();
+      gdbpy_ref<> len_obj = gdbpy_safe_from_longest (insn_len);
 
       gdbpy_dict_set_item_string (insn_dict, "addr", pc_obj);
       gdbpy_dict_set_item_string (insn_dict, "asm", asm_obj);
