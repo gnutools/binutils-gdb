@@ -173,9 +173,7 @@ frame_object::repr ()
 {
   frame_info_ptr f_info = frame_find_by_id (frame_id);
   if (f_info == nullptr)
-    /* FIXME: Python safety.  gdb_py_invalid_object_repr should
-       throw on error. */
-    return gdbpy_ref<> (gdb_py_invalid_object_repr (this));
+    return gdbpy_safe_invalid_object_repr (this);
 
   return gdbpy_unicode_from_format ("<%s level=%d frame-id=%s>",
 				    gdbpy_py_obj_tp_name (this).c_str (),

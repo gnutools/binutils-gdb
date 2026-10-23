@@ -286,9 +286,7 @@ gdbpy_ref<>
 arch_object::repr ()
 {
   if (gdbarch == nullptr)
-    /* FIXME: Python safety.  Eventually gdb_py_invalid_object_repr
-       should throw.  */
-    return gdbpy_ref<> (gdb_py_invalid_object_repr (this));
+    return gdbpy_safe_invalid_object_repr (this);
 
   auto arch_info = gdbarch_bfd_arch_info (gdbarch);
   return gdbpy_unicode_from_format ("<%s arch_name=%s printable_name=%s>",

@@ -248,10 +248,7 @@ gdbpy_ref<>
 connection_object::repr ()
 {
   if (target == nullptr)
-    /* FIXME: Python safety.  gdb_py_invalid_object_repr ought to
-       throw on error, and return gdbpy_ref<>, but currently does
-       not.  */
-    return gdbpy_ref<> (gdb_py_invalid_object_repr (this));
+    return gdbpy_safe_invalid_object_repr (this);
 
   return (gdbpy_unicode_from_format
 	  ("<%s num=%d, what=\"%s\">",

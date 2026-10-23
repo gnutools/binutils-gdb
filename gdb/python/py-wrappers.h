@@ -414,4 +414,14 @@ gdbpy_safe_from_ulongest (ULONGEST l)
   return result;
 }
 
+/* A wrapper for gdb_py_invalid_object_repr that throws on error.  */
+static inline gdbpy_ref<>
+gdbpy_safe_invalid_object_repr (gdbpy_borrowed_ref<> self)
+{
+  gdbpy_ref<> result (gdb_py_invalid_object_repr (self));
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
+}
+
 #endif /* GDB_PYTHON_PY_WRAPPERS_H */

@@ -320,10 +320,7 @@ gdbpy_ref<>
 symbol_object::repr ()
 {
   if (symbol == nullptr)
-    /* FIXME: Python safety.  gdb_py_invalid_object_repr ought to
-       throw on error, and return gdbpy_ref<>, but currently does
-       not.  */
-    return gdbpy_ref<> (gdb_py_invalid_object_repr (this));
+    return gdbpy_safe_invalid_object_repr (this);
 
   return gdbpy_unicode_from_format ("<%s print_name=%s>",
 				    gdbpy_py_obj_tp_name (this).c_str (),
