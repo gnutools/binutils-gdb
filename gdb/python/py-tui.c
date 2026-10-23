@@ -506,13 +506,8 @@ gdbpy_tui_window::set_title (gdbpy_opt_borrowed_ref<> new_title)
     gdbpy_err_format (PyExc_TypeError,
 		      _("Cannot delete \"title\" attribute."));
 
-  /* FIXME: Python safety.  Ideally python_string_to_host_string would
-     throw on error, but this can't be done until more of the code has
-     been converted.  */
   gdb::unique_xmalloc_ptr<char> value
-    = python_string_to_host_string (new_title);
-  if (value == nullptr)
-    throw gdb_python_exception ();
+    = safe_python_string_to_host_string (new_title);
 
   window->set_title (value.get ());
 }

@@ -119,6 +119,16 @@ python_string_to_target_string (PyObject *obj)
   return unicode_to_target_string (str.get ());
 }
 
+/* Wrapper for python_string_to_target_string that throws on failure.  */
+gdb::unique_xmalloc_ptr<char>
+safe_python_string_to_target_string (gdbpy_borrowed_ref<> obj)
+{
+  gdb::unique_xmalloc_ptr<char> result = python_string_to_target_string (obj);
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
+}
+
 /* Converts a python string (8-bit or unicode) to a target string in the
    target's charset.  Returns NULL on error, with a python exception
    set.
@@ -145,6 +155,16 @@ python_string_to_host_string (PyObject *obj)
     return NULL;
 
   return unicode_to_encoded_string (str.get (), host_charset ());
+}
+
+/* Wrapper for python_string_to_host_string that throws on failure.  */
+gdb::unique_xmalloc_ptr<char>
+safe_python_string_to_host_string (gdbpy_borrowed_ref<> obj)
+{
+  gdb::unique_xmalloc_ptr<char> result = python_string_to_host_string (obj);
+  if (result == nullptr)
+    throw gdb_python_exception ();
+  return result;
 }
 
 /* See python/python-internal.h.  */

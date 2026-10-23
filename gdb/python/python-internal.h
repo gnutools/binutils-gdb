@@ -997,8 +997,12 @@ void gdbpy_print_stack_or_quit ();
 gdbpy_ref<> python_string_to_unicode (PyObject *obj);
 gdb::unique_xmalloc_ptr<char> unicode_to_target_string (PyObject *unicode_str);
 gdb::unique_xmalloc_ptr<char> python_string_to_target_string (PyObject *obj);
+gdb::unique_xmalloc_ptr<char> safe_python_string_to_target_string
+    (gdbpy_borrowed_ref<> obj);
 gdbpy_ref<> python_string_to_target_python_string (PyObject *obj);
 gdb::unique_xmalloc_ptr<char> python_string_to_host_string (PyObject *obj);
+gdb::unique_xmalloc_ptr<char> safe_python_string_to_host_string
+    (gdbpy_borrowed_ref<> obj);
 
 /* Convert a host string STR to a python string.  */
 

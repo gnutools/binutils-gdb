@@ -355,13 +355,8 @@ frame_object::read_var (gdbpy_borrowed_ref<> args,
     var = symbol_object_to_symbol (sym_obj);
   else if (gdbpy_is_string (sym_obj))
     {
-      gdb::unique_xmalloc_ptr<char>
-	var_name (python_string_to_target_string (sym_obj));
-
-      /* FIXME: Python safety.  python_string_to_target_string should
-	 throw on error.  */
-      if (var_name == nullptr)
-	throw gdb_python_exception ();
+      gdb::unique_xmalloc_ptr<char> var_name
+	= safe_python_string_to_target_string (sym_obj);
 
       if (block_obj != nullptr)
 	{
