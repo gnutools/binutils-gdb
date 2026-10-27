@@ -4371,15 +4371,13 @@ _bfd_x86_elf_link_setup_gnu_properties
   if (htab->params->ibt)
     {
       features = GNU_PROPERTY_X86_FEATURE_1_IBT;
-      htab->params->cet_report &= ~prop_report_ibt;
+      htab->params->ibt_report = prop_report_none;
     }
   if (htab->params->shstk)
     {
       features |= GNU_PROPERTY_X86_FEATURE_1_SHSTK;
-      htab->params->cet_report &= ~prop_report_shstk;
+      htab->params->shstk_report = prop_report_none;
     }
-  if (!(htab->params->cet_report & (prop_report_ibt | prop_report_shstk)))
-    htab->params->cet_report = prop_report_none;
   if (htab->params->lam_u48)
     {
       features |= (GNU_PROPERTY_X86_FEATURE_1_LAM_U48
@@ -4460,7 +4458,8 @@ _bfd_x86_elf_link_setup_gnu_properties
 	}
     }
 
-  bool check_feature_1 = (htab->params->cet_report
+  bool check_feature_1 = (htab->params->ibt_report
+			  || htab->params->shstk_report
 			  || htab->params->lam_u48_report
 			  || htab->params->lam_u57_report);
   if (check_feature_1 || htab->params->isa_level_report)
@@ -4469,30 +4468,32 @@ _bfd_x86_elf_link_setup_gnu_properties
       bfd *abfd;
       const char *warning_msg = _("%P: %pB: warning: missing %s\n");
       const char *error_msg = _("%X%P: %pB: error: missing %s\n");
-      const char *cet_msg = NULL;
+      const char *ibt_msg = NULL;
+      const char *shstk_msg = NULL;
       const char *lam_u48_msg = NULL;
       const char *lam_u57_msg = NULL;
       const char *missing;
       elf_property_list *p;
       bool missing_ibt, missing_shstk;
       bool missing_lam_u48, missing_lam_u57;
-      bool check_ibt
-	= (htab->params->cet_report
-	   && (htab->params->cet_report & prop_report_ibt));
-      bool check_shstk
-	= (htab->params->cet_report
-	   && (htab->params->cet_report & prop_report_shstk));
       bool report_needed_level
 	= (htab->params->isa_level_report & isa_level_report_needed) != 0;
       bool report_used_level
 	= (htab->params->isa_level_report & isa_level_report_used) != 0;
 
-      if (htab->params->cet_report)
+      if (htab->params->ibt_report)
 	{
-	  if ((htab->params->cet_report & prop_report_warning))
-	    cet_msg = warning_msg;
+	  if ((htab->params->ibt_report & prop_report_warning))
+	    ibt_msg = warning_msg;
 	  else
-	    cet_msg = error_msg;
+	    ibt_msg = error_msg;
+	}
+      if (htab->params->shstk_report)
+	{
+	  if ((htab->params->shstk_report & prop_report_warning))
+	    shstk_msg = warning_msg;
+	  else
+	    shstk_msg = error_msg;
 	}
       if (htab->params->lam_u48_report)
 	{
@@ -4556,8 +4557,8 @@ _bfd_x86_elf_link_setup_gnu_properties
 	      }
 
 
-	    missing_ibt = check_ibt;
-	    missing_shstk = check_shstk;
+	    missing_ibt = !!ibt_msg;
+	    missing_shstk = !!shstk_msg;
 	    missing_lam_u48 = !!lam_u48_msg;
 	    missing_lam_u57 = !!lam_u57_msg;
 	    if (p_feature_1)
@@ -4571,15 +4572,23 @@ _bfd_x86_elf_link_setup_gnu_properties
 		missing_lam_u57 &= !(p_feature_1->property.u.number
 				     & GNU_PROPERTY_X86_FEATURE_1_LAM_U57);
 	      }
-	    if (missing_ibt || missing_shstk)
+	    if (missing_ibt && missing_shstk && ibt_msg == shstk_msg)
 	      {
-		if (missing_ibt && missing_shstk)
-		  missing = _("IBT and SHSTK properties");
-		else if (missing_ibt)
-		  missing = _("IBT property");
-		else
-		  missing = _("SHSTK property");
-		info->callbacks->einfo (cet_msg, abfd, missing);
+		missing = _("IBT and SHSTK properties");
+		info->callbacks->einfo (ibt_msg, abfd, missing);
+	      }
+	    else
+	      {
+		if (missing_ibt)
+		  {
+		    missing = _("IBT property");
+		    info->callbacks->einfo (ibt_msg, abfd, missing);
+		  }
+		if (missing_shstk)
+		  {
+		    missing = _("SHSTK property");
+		    info->callbacks->einfo (shstk_msg, abfd, missing);
+		  }
 	      }
 	    if (missing_lam_u48)
 	      {

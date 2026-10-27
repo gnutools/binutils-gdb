@@ -23,9 +23,7 @@ enum elf_x86_prop_report
 {
   prop_report_none	= 0,	    /* Do nothing.  */
   prop_report_warning	= 1 << 0,   /* Issue a warning.  */
-  prop_report_error	= 1 << 1,   /* Issue an error.  */
-  prop_report_ibt	= 1 << 2,   /* Report missing IBT property.  */
-  prop_report_shstk	= 1 << 3    /* Report missing SHSTK property.  */
+  prop_report_error	= 1 << 1    /* Issue an error.  */
 };
 
 /* ISA level report control.  */
@@ -95,8 +93,11 @@ struct elf_linker_x86_params
   /* Report needed and used x86-64 ISA levels.  */
   enum elf_x86_isa_level_report isa_level_report;
 
-  /* Report missing IBT and SHSTK properties.  */
-  enum elf_x86_prop_report cet_report;
+  /* Report missing IBT property.  */
+  enum elf_x86_prop_report ibt_report;
+
+  /* Report missing SHSTK property.  */
+  enum elf_x86_prop_report shstk_report;
 
   /* Report missing LAM_U48 property.  */
   enum elf_x86_prop_report lam_u48_report;

@@ -1417,6 +1417,8 @@ linker not report missing properties in input files.
 @option{cet-report=warning} will make the linker issue a warning for
 missing properties in input files.  @option{cet-report=error} will make
 the linker issue an error for missing properties in input files.
+@option{cet-report=@var{value}} is equivalent to specifying both
+@option{ibt-report=@var{value}} and @option{shstk-report=@var{value}}.
 Note that @option{ibt} will turn off the missing
 GNU_PROPERTY_X86_FEATURE_1_IBT property report and @option{shstk} will
 turn off the missing GNU_PROPERTY_X86_FEATURE_1_SHSTK property report.
@@ -1475,6 +1477,20 @@ Supported for Linux/i386 and Linux/x86_64.
 @item ibt
 Generate GNU_PROPERTY_X86_FEATURE_1_IBT in .note.gnu.property section
 to indicate compatibility with IBT.  This also implies @option{ibtplt}.
+Supported for Linux/i386 and Linux/x86_64.
+
+@item ibt-report=none
+@itemx ibt-report=warning
+@itemx ibt-report=error
+Specify how to report the missing GNU_PROPERTY_X86_FEATURE_1_IBT
+property in input .note.gnu.property section.
+@option{ibt-report=none}, which is the default, will make the
+linker not report missing properties in input files.
+@option{ibt-report=warning} will make the linker issue a warning for
+missing properties in input files.  @option{ibt-report=error} will
+make the linker issue an error for missing properties in input files.
+Note that @option{ibt} will turn off the missing
+GNU_PROPERTY_X86_FEATURE_1_IBT property report.
 Supported for Linux/i386 and Linux/x86_64.
 
 @item indirect-extern-access
@@ -1672,6 +1688,20 @@ code @code{PT_LOAD} segment if @samp{noseparate-code} is used.
 Generate GNU_PROPERTY_X86_FEATURE_1_SHSTK in .note.gnu.property section
 to indicate compatibility with Intel Shadow Stack.  Supported for
 Linux/i386 and Linux/x86_64.
+
+@item shstk-report=none
+@itemx shstk-report=warning
+@itemx shstk-report=error
+Specify how to report the missing GNU_PROPERTY_X86_FEATURE_1_SHSTK
+property in input .note.gnu.property section.
+@option{shstk-report=none}, which is the default, will make the
+linker not report missing properties in input files.
+@option{shstk-report=warning} will make the linker issue a warning for
+missing properties in input files.  @option{shstk-report=error} will
+make the linker issue an error for missing properties in input files.
+Note that @option{shstk} will turn off the missing
+GNU_PROPERTY_X86_FEATURE_1_SHSTK property report.
+Supported for Linux/i386 and Linux/x86_64.
 
 @item stack-size=@var{value}
 Specify a stack size for an ELF @code{PT_GNU_STACK} segment.

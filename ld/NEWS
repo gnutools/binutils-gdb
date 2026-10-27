@@ -1,5 +1,9 @@
 -*- text -*-
 
+* Add -z ibt-report=[none|warning|error] and
+  -z shstk-report=[none|warning|error] to the x86 ELF linker to report
+  missing IBT and SHSTK properties individually.
+
 * The alpha target supports indirect functions (STT_GNU_IFUNC), using the
   newly allocated R_ALPHA_IRELATIVE (42) dynamic relocation.  No dynamic
   linker or C library startup code implements that relocation yet, so a
