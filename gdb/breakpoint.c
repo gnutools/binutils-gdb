@@ -187,8 +187,10 @@ struct breakpoint_source
      contains the breakpoint (0-based).  */
   size_t bp_line_stored = 0;
 
-  /* BFD when source was captured.  */
-  gdb_bfd_ref_ptr source_bfd;
+  /* The BFD in which the breakpoint was placed, captured at the same time
+     that the source code was captured.  This allows us to know if the BFD
+     has changed as well as the source code.  */
+  gdb_bfd_ref_ptr breakpoint_bfd;
 };
 
 static bool breakpoint_source_is_tracked (const breakpoint_source *src);
@@ -893,7 +895,7 @@ breakpoint_source_capture (gdb::span<const symtab_and_line> sals,
 
   /* Get the BFD from the symtab.  */
   if (sals[0].symtab->compunit ().objfile ())
-    result.source_bfd = sals[0].symtab->compunit ().objfile ()->obfd;
+    result.breakpoint_bfd = sals[0].symtab->compunit ().objfile ()->obfd;
 
   /* Capture the source lines.  */
   auto restore_styling = make_scoped_restore (&source_styling, false);
@@ -13594,7 +13596,7 @@ code_breakpoint::adjust_bp_for_source_tracking
     return;
 
   bfd *current_bfd = cust.objfile ()->obfd.get ();
-  if (bp_source->source_bfd.get () == current_bfd)
+  if (bp_source->breakpoint_bfd.get () == current_bfd)
     return;
 
   /* BFD changed - executable was reloaded.  */
