@@ -23,6 +23,8 @@
 # activate for this breakpoint due to the locations coming from
 # different source files.
 
+load_lib source-tracking.exp
+
 standard_testfile .c -other.c
 
 # Create two sub-directories of the build directory in which our two
@@ -70,15 +72,7 @@ set bp_num [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
 
 # As the two locations are from two different files this breakpoint
 # should not be source tracked.
-gdb_test_multiple "info breakpoints $bp_num" \
-    "multi-location breakpoint not tracked" {
-	-re -wrap "source-tracking enabled.*" {
-	    fail "$gdb_test_name (tracking incorrectly enabled)"
-	}
-	-re -wrap "" {
-	    pass $gdb_test_name
-	}
-    }
+check_bp_not_tracked $bp_num "multi-location breakpoint not tracked"
 
 # Now for a sanity check, lets make sure we can create source tracked
 # breakpoints on the files individually.
@@ -89,13 +83,6 @@ foreach_with_prefix dir { aa bb } {
     set bp_num [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
 		    "get bp_num for breakpoint in $dir/$srcfile"]
 
-    gdb_test_multiple "info breakpoints $bp_num" \
-	"single location breakpoint from $dir/$srcfile is tracked" {
-	    -re -wrap "source-tracking enabled \\(tracking $::decimal lines around line $lineno\\).*" {
-		pass $gdb_test_name
-	    }
-	    -re -wrap "" {
-		fail $gdb_test_name
-	    }
-	}
+    check_bp_tracked $bp_num $lineno $srcfile \
+	"single location breakpoint from $dir/$srcfile is tracked"
 }

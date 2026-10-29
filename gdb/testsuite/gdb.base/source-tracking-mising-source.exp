@@ -17,6 +17,8 @@
 # When source tracking is enabled but the source file cannot be found, GDB
 # should create a non-tracking breakpoint and not crash or fail.
 
+load_lib source-tracking.exp
+
 standard_testfile source-tracking-simple.cpp
 set build_srcfile xxx-${testfile}.cpp
 
@@ -39,17 +41,10 @@ gdb_test "list" ".*No such file or directory.*" \
     "verify source file is not available"
 
 # Try to set a breakpoint, this should succeed but not be tracked.
-gdb_test "break ${build_srcfile}:${bp_line}" "Breakpoint.*at.*" \
-    "create breakpoint when source file missing"
+gdb_breakpoint ${build_srcfile}:${bp_line}
+set bp_num [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
+		"get bp_num for breakpoint with missing source"]
 
 # Check that the breakpoint was created but is not tracked,
 # it should not show the "source-tracking enabled" message.
-gdb_test_multiple "info breakpoints" \
-    "breakpoint not tracked when source missing" {
-	-re -wrap "source-tracking enabled.*" {
-	    fail $gdb_test_name
-	}
-	-re -wrap "breakpoint.*${build_srcfile}:${bp_line}.*" {
-	    pass $gdb_test_name
-	}
-    }
+check_bp_not_tracked $bp_num "breakpoint not tracked when source missing"

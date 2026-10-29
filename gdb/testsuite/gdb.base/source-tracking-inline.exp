@@ -26,6 +26,8 @@
 # when using plain 'gdbserver'.
 require !use_gdb_stub
 
+load_lib source-tracking.exp
+
 # This test has a main source file, there are two copies of this (-1.c
 # and -2.c), then a header file of which there are also two copies
 # (-hdr-1.h and -hdr-2.h).  Then there is the "other" source file,
@@ -88,37 +90,21 @@ gdb_test "break ${testfile_hdr}:$lineno_hdr" \
 set bp_num_hdr [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
 		   "get number for header breakpoint"]
 
-# Run 'info breakpoints BP_NUM' and check that the breakpoint is
-# source tracked around LINENO.  Use TESTNAME as the name of the test
-# being run.
-proc check_bp_tracked { bp_num lineno testname } {
-    gdb_test_multiple "info breakpoints $bp_num" $testname {
-	-re -wrap "source-tracking enabled \\(tracking $::decimal lines around line $lineno\\).*" {
-	    pass $gdb_test_name
-	}
-	-re -wrap "" {
-	    fail "$gdb_test_name (source tracking not enabled)"
-	}
-    }
-}
-
 # Check that the breakpoint on the inline function from the main
 # source file is being source tracked.
-check_bp_tracked $bp_num_src $lineno_src \
+check_bp_tracked $bp_num_src $lineno_src $build_srcfile \
     "inline function within source file is tracked"
 
 # And check that the breakpoint on the inline function from the header
 # file is also being source tracked.
-check_bp_tracked $bp_num_hdr $lineno_hdr \
+check_bp_tracked $bp_num_hdr $lineno_hdr $build_header \
     "inline function within header file is tracked"
 
 # Change the main source file, this changes the inline function within
 # that source file, but the header breakpoint is unchanged.
 
-sleep 1
-remote_exec build "cp $srcdir/$subdir/$srcfile2 $build_srcfile"
-if { [build_executable "failed to build" $testfile \
-	  [list $build_srcfile $build_other_srcfile]] } {
+if {[replace_source_and_rebuild $srcfile2 $build_srcfile \
+	 [list $build_srcfile $build_other_srcfile]] == -1} {
     return
 }
 
@@ -132,20 +118,18 @@ set lineno_src [gdb_get_line_number "Breakpoint here." $build_srcfile]
 
 # The breakpoint should still be source tracked, but its location
 # should have been updated.
-check_bp_tracked $bp_num_src $lineno_src \
+check_bp_tracked $bp_num_src $lineno_src $build_srcfile \
     "main source file breakpoint has moved"
 
 # The header file breakpoint should not have moved, but should still
 # be tracked.
-check_bp_tracked $bp_num_hdr $lineno_hdr \
+check_bp_tracked $bp_num_hdr $lineno_hdr $build_header \
     "header file breakpoint has not moved"
 
 # Change the header file, this moves the breakpoint line for the
 # inline function in the header file.
-sleep 1
-remote_exec build "cp $srcdir/$subdir/$srcfile4 $build_header"
-if { [build_executable "failed to build" $testfile \
-	  [list $build_srcfile $build_other_srcfile]] } {
+if {[replace_source_and_rebuild $srcfile4 $build_header \
+	 [list $build_srcfile $build_other_srcfile]] == -1} {
     return
 }
 
@@ -160,10 +144,10 @@ set lineno_hdr [gdb_get_line_number "Header breakpoint location." \
 
 # The main file breakpoint should still be tracked, but should not
 # have moved.
-check_bp_tracked $bp_num_src $lineno_src \
+check_bp_tracked $bp_num_src $lineno_src $build_srcfile \
     "main source file breakpoint has not moved"
 
 # The header file breakpoint should have moved, and should still be
 # tracked.
-check_bp_tracked $bp_num_hdr $lineno_hdr \
+check_bp_tracked $bp_num_hdr $lineno_hdr $build_header \
     "header file breakpoint has moved"

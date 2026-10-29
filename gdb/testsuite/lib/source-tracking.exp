@@ -1,0 +1,157 @@
+# Copyright 2026 Free Software Foundation, Inc.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+# Support library for testing GDB's source tracking breakpoint
+# feature.
+
+# Use 'info breakpoints' to check if breakpoint BP_NUM is source
+# tracked.  LINENO is the line number that is being tracked, and
+# TESTNAME is the name of the test being run.  The line number of the
+# breakpoint location and the line number that source tracking is
+# tracking are cross checked against each other, and against LINENO.
+# If SRCFILE is given then the breakpoint location must be in SRCFILE,
+# otherwise the breakpoint location may be in any file.
+
+proc check_bp_tracked { bp_num lineno srcfile testname } {
+    set file_pattern "/[string_to_regexp [file tail $srcfile]]"
+
+    set bp_line ""
+    set tracked_line ""
+    set is_tracked false
+
+    gdb_test_multiple "info breakpoints $bp_num" $testname -lbl {
+	-re "^\r\n$bp_num\\s+\[^\r\n\]*${file_pattern}:($::decimal)(?=\r\n)" {
+	    # Found a single location breakpoint line.
+	    set line $expect_out(1,string)
+	    if { $bp_line eq "" } {
+		set bp_line $line
+	    } elseif { $bp_line ne $line } {
+		set bp_line "BAD"
+	    }
+	    exp_continue
+	}
+
+	-re "^\r\n$bp_num\\.$::decimal\\s+\[^\r\n\]*${file_pattern}:($::decimal)(?=\r\n)" {
+	    # Found a multi-location breakpoint line.
+	    set line $expect_out(1,string)
+	    if { $bp_line eq "" } {
+		set bp_line $line
+	    } elseif { $bp_line ne $line } {
+		set bp_line "BAD"
+	    }
+	    exp_continue
+	}
+
+	-re "^\r\n\\s+source-tracking enabled \\(tracking $::decimal lines around line ($::decimal)\\)(?=\r\n)" {
+	    # Found the source tracking line.
+	    set is_tracked true
+	    set tracked_line $expect_out(1,string)
+	    exp_continue
+	}
+
+	-re "^\r\n$::gdb_prompt $" {
+	    if { !$is_tracked } {
+		fail "$gdb_test_name (breakpoint is not source tracked)"
+	    } elseif { $bp_line eq "BAD" || $bp_line eq "" } {
+		fail "$gdb_test_name (inconsistent breakpoint line numbers)"
+	    } elseif { $bp_line != $tracked_line } {
+		fail "$gdb_test_name (breakpoint line and tracked line differ $bp_line vs $tracked_line)"
+	    } elseif { $tracked_line != $lineno } {
+		fail "$gdb_test_name (incorrect line being tracked $tracked_line vs $lineno)"
+	    } else {
+		pass $gdb_test_name
+	    }
+	}
+    }
+}
+
+# Use 'maint info source-tracking-context' to check that the correct
+# source line is being tracked.  BP_NUM is the breakpoint number,
+# LINENO is the source line being tracked.  LINE_RE is a regexp that
+# matches the source line, and TESTNAME is the name of the test being
+# run.
+
+proc check_bp_source_context { bp_num lineno line_re testname } {
+    gdb_test "maintenance info source-tracking-context $bp_num" \
+	"\r\n> $lineno \[^\r\n\]*${line_re}\[^\r\n\]*(?=\r\n).*" \
+	$testname
+}
+
+# Use 'info breakpoints' and 'maint info source-tracking-context' to
+# check that breakpoint BP_NUM is not source tracked.  This checks
+# that the line of output (from 'info breakpoints') that indicates a
+# breakpoint is being tracked, is not emitted.  And checks that 'maint
+# info source-tracking-context' gives the expected error messsage.
+# TESTNAME is the name of the test being run.
+
+proc check_bp_not_tracked { bp_num testname } {
+    with_test_prefix "info breakpoints check" {
+	gdb_test_multiple "info breakpoints $bp_num" $testname {
+	    -re -wrap "source-tracking enabled.*" {
+		fail "$gdb_test_name (source tracking incorrectly enabled)"
+	    }
+	    -re -wrap "" {
+		pass $gdb_test_name
+	    }
+	}
+    }
+
+    with_test_prefix "context check" {
+	gdb_test "maintenance info source-tracking-context $bp_num" \
+	    "Breakpoint $bp_num does not have source tracking enabled\\." \
+	    $testname
+    }
+}
+
+# Copy SRC from the testsuite source directory to DEST.  A short sleep
+# is done before the copy so that the timestamp on DEST is guaranteed
+# to change, this ensures that when GDB looks at the source file (using
+# stat) it will see the file as having changed.
+
+proc replace_source { src dest } {
+    global srcdir subdir
+
+    # Sleep to ensure the timestamp changes when we rebuild.
+    sleep 1
+    remote_exec build "cp $srcdir/$subdir/$src $dest"
+}
+
+# Copy SRC from the testsuite source directory to DEST, then rebuild
+# the test executable using a call to build_executable.  Use SOURCES
+# as the list of source files to build, and OPTIONS as the build
+# options.  If SOURCES is not given then DEST is used as the only
+# source file.  The default for OPTIONS is just { debug }, same as for
+# build_executable.
+#
+# The executable is always rebuilt into the global TESTFILE.
+#
+# A short sleep is done before the copy so that the timestamp on DEST
+# is guaranteed to change, this ensures that when GDB looks at the
+# source file (using stat) it will see the file as having changed.
+#
+# The return value is as for build_executable.
+
+proc replace_source_and_rebuild { src dest {sources ""} {options {debug}} } {
+    global srcdir subdir testfile
+
+    if { $sources eq "" } {
+	set sources $dest
+    }
+
+    replace_source $src $dest
+
+    return [build_executable "failed to prepare" $testfile $sources \
+		$options]
+}

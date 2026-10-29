@@ -22,6 +22,8 @@
 # 2) Do all the same but move the breakpoint a few lines forward by adding an
 # additional line to the tmp2-$srcfile.
 
+load_lib source-tracking.exp
+
 standard_testfile .cpp -2.cpp -3.cpp -4.cpp
 set build_srcfile ${testfile}-xxx.cpp
 
@@ -50,16 +52,15 @@ with_test_prefix "check disabling is silent" {
 # Test that the breakpoint can be adjusted backward.
 set lineno [gdb_get_line_number "var += i;" $new_source_file]
 gdb_breakpoint ${build_srcfile}:$lineno
+set bp_num [get_integer_valueof "\$bpnum" "*UNKNOWN*" \
+		"get breakpoint number"]
 
-# Sleep to ensure timestamp changes when we rebuild.
-sleep 1
-remote_exec build "cp ${srcdir}/${subdir}/${srcfile2} $new_source_file"
-if {[build_executable "failed to prepare" $testfile $new_source_file] == -1} {
+if {[replace_source_and_rebuild $srcfile2 $new_source_file] == -1} {
     return
 }
 
 set lineno [expr {$lineno - 1}]
-gdb_test "run" "Breakpoint 1,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
+gdb_test "run" "Breakpoint $bp_num,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
     "run stops at adjusted breakpoint location"
 gdb_test "info breakpoints" \
     "breakpoint.*keep.*y.*$hex.*$build_srcfile:$lineno.*already hit 1 time" \
@@ -71,15 +72,12 @@ gdb_test_no_output "set breakpoint source-tracking enabled on" \
     "enable source tracking breakpoints for part 2"
 gdb_breakpoint ${build_srcfile}:$lineno
 
-# Sleep to ensure timestamp changes when we rebuild.
-sleep 1
-remote_exec build "cp ${srcdir}/${subdir}/${srcfile3} $new_source_file"
-if {[build_executable "failed to prepare" $testfile $new_source_file] == -1} {
+if {[replace_source_and_rebuild $srcfile3 $new_source_file] == -1} {
     return
 }
 
 set lineno [expr {$lineno + 2}]
-gdb_test "run" "Breakpoint 1,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
+gdb_test "run" "Breakpoint $bp_num,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
     "run for the second time stops at adjusted breakpoint location"
 gdb_test "info breakpoints" \
     "breakpoint.*keep.*y.*$hex.*$build_srcfile:$lineno.*already hit 1 time" \
@@ -91,11 +89,7 @@ gdb_test "set breakpoint source-tracking enabled off" \
     "^Discarding existing source tracking information\\." \
     "disable source tracking, existing tracking is discarded"
 
-gdb_test "info breakpoints" \
-    [multi_line \
-	 "1\\s+breakpoint\\s+keep\\s+y\[^\r\n\]+" \
-	 "\\s+breakpoint already hit \[^\r\n\]+"] \
-    "info breakpoints breakpoint no longer tracked"
+check_bp_not_tracked $bp_num "info breakpoints breakpoint no longer tracked"
 
 # Test what happens when the breakpoint line disappears.
 clean_restart ${testfile}
@@ -104,10 +98,7 @@ gdb_test_no_output "set breakpoint source-tracking enabled on" \
 set lineno [gdb_get_line_number "var += 10;" $new_source_file]
 gdb_breakpoint ${build_srcfile}:$lineno
 
-# Sleep to ensure timestamp changes when we rebuild.
-sleep 1
-remote_exec build "cp ${srcdir}/${subdir}/${srcfile4} $new_source_file"
-if {[build_executable "failed to prepare" $testfile $new_source_file] == -1} {
+if {[replace_source_and_rebuild $srcfile4 $new_source_file] == -1} {
     return
 }
 
@@ -116,7 +107,7 @@ if {[build_executable "failed to prepare" $testfile $new_source_file] == -1} {
 # in tmp3, so GDB resolves it to line 11 (return var;) or stays at line 10.
 # We test that it doesn't move beyond the reasonable range.
 set lineno_re "(?:$lineno|[expr {$lineno + 1}])"
-gdb_test "run" "Breakpoint 1,.*$build_srcfile:$lineno_re\r\n$lineno_re\t.*" \
+gdb_test "run" "Breakpoint $bp_num,.*$build_srcfile:$lineno_re\r\n$lineno_re\t.*" \
     "run for the third time stops near original location"
 gdb_test "info breakpoints" \
     "breakpoint.*keep.*y.*$hex.*$build_srcfile:$lineno_re.*already hit 1 time" \
@@ -129,14 +120,11 @@ clean_restart ${testfile}
 set lineno [gdb_get_line_number "return var;" $new_source_file]
 gdb_breakpoint ${build_srcfile}:$lineno
 
-# Sleep to ensure timestamp changes when we rebuild.
-sleep 1
-remote_exec build "cp ${srcdir}/${subdir}/${srcfile2} $new_source_file"
-if {[build_executable "failed to prepare" $testfile $new_source_file] == -1} {
+if {[replace_source_and_rebuild $srcfile2 $new_source_file] == -1} {
     return
 }
 
-gdb_test "run" "Breakpoint 1,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
+gdb_test "run" "Breakpoint $bp_num,.*$build_srcfile:$lineno\r\n$lineno\t.*" \
     "run for the fourth time stops at unadjusted location"
 gdb_test "info breakpoints" \
     "breakpoint.*keep.*y.*$hex.*$build_srcfile:$lineno.*already hit 1 time" \

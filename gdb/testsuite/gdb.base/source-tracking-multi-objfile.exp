@@ -21,6 +21,8 @@
 # GDB does not currently source track breakpoints that are in multiple
 # objfiles.
 
+load_lib "source-tracking.exp"
+
 require allow_shlib_tests
 
 standard_testfile .c -common.c -lib.c
@@ -57,8 +59,7 @@ with_test_prefix "untracked b/p" {
 	"\r\n$bp_num\\.1\\s+\[^\r\n\]+\r\n$bp_num\\.2\\s+\[^\r\n\]+" \
 	"check there are two locations for the breakpoint"
 
-    gdb_test "maintenance info source-tracking-context $bp_num" \
-	"Breakpoint $bp_num does not have source tracking enabled\\." \
+    check_bp_not_tracked $bp_num \
 	"check breakpoint is not source tracked"
 }
 
@@ -76,7 +77,7 @@ with_test_prefix "tracked b/p" {
 	     "\\s+source-tracking enabled\[^\r\n\]*"] \
 	"check there is just one location for the breakpoint"
 
-    gdb_test "maintenance info source-tracking-context $bp_num" \
+    check_bp_source_context $bp_num $lineno \
 	"/\\* Breakpoint here\\.  \\*/.*" \
 	"check breakpoint is source tracked"
 }
