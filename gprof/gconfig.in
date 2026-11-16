@@ -19,6 +19,10 @@
 /* Is the prototype for getopt in <unistd.h> in the expected format? */
 #undef HAVE_DECL_GETOPT
 
+/* Define to 1 if you have the declaration of `strtoul', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRTOUL
+
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H
 

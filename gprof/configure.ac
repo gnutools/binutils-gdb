@@ -41,6 +41,7 @@ ACX_LARGEFILE
 # These are in addition to what is made available in bfd/.
 AC_CHECK_HEADERS(sys/time.h)
 AC_CHECK_FUNCS(setitimer)
+AC_CHECK_DECLS([strtoul])
 
 ALL_LINGUAS="bg da de eo es fi fr ga hu id it ja ms nl pt_BR ro ru rw sr sv tr uk vi"
 ZW_GNU_GETTEXT_SISTER_DIR

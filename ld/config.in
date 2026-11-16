@@ -118,9 +118,25 @@
    */
 #undef HAVE_DECL_STPCPY
 
+/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRNLEN
+
+/* Define to 1 if you have the declaration of `strtol', and to 0 if you don't.
+   */
+#undef HAVE_DECL_STRTOL
+
+/* Define to 1 if you have the declaration of `strtoul', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRTOUL
+
 /* Define to 1 if you have the declaration of `strtoull', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRTOULL
+
+/* Define to 1 if you have the declaration of `vsnprintf', and to 0 if you
+   don't. */
+#undef HAVE_DECL_VSNPRINTF
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #undef HAVE_DLFCN_H

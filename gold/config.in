@@ -59,10 +59,6 @@
    */
 #undef HAVE_DCGETTEXT
 
-/* Define to 1 if you have the declaration of `asprintf', and to 0 if you
-   don't. */
-#undef HAVE_DECL_ASPRINTF
-
 /* Define to 1 if you have the declaration of `basename', and to 0 if you
    don't. */
 #undef HAVE_DECL_BASENAME
@@ -79,9 +75,6 @@
    don't. */
 #undef HAVE_DECL_BSWAP_64
 
-/* Define to 1 if you have the declaration of `ffs', and to 0 if you don't. */
-#undef HAVE_DECL_FFS
-
 /* Define to 1 if you have the declaration of `memmem', and to 0 if you don't.
    */
 #undef HAVE_DECL_MEMMEM
@@ -94,9 +87,17 @@
    don't. */
 #undef HAVE_DECL_STRNDUP
 
-/* Define to 1 if you have the declaration of `strverscmp', and to 0 if you
+/* Define to 1 if you have the declaration of `strtol', and to 0 if you don't.
+   */
+#undef HAVE_DECL_STRTOL
+
+/* Define to 1 if you have the declaration of `strtoul', and to 0 if you
    don't. */
-#undef HAVE_DECL_STRVERSCMP
+#undef HAVE_DECL_STRTOUL
+
+/* Define to 1 if you have the declaration of `strtoull', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRTOULL
 
 /* Define to 1 if you have the declaration of `vasprintf', and to 0 if you
    don't. */

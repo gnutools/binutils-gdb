@@ -122,7 +122,7 @@ AC_CHECK_FUNCS(pread)
 
 dnl Check for bswap_{16,32,64}
 AC_CHECK_DECLS([bswap_16, bswap_32, bswap_64], [], [], [[#include <byteswap.h>]])
-AC_CHECK_DECLS([asprintf, vasprintf, stpcpy])
+AC_CHECK_DECLS([asprintf, vasprintf, snprintf, stpcpy])
 
 dnl Check for qsort_r.  (Taken from gnulib.)
 AC_CHECK_FUNCS_ONCE([qsort_r])

@@ -40,10 +40,6 @@
    don't. */
 #undef HAVE_DECL_ASPRINTF
 
-/* Define to 1 if you have the declaration of `basename', and to 0 if you
-   don't. */
-#undef HAVE_DECL_BASENAME
-
 /* Define to 1 if you have the declaration of `ffs', and to 0 if you don't. */
 #undef HAVE_DECL_FFS
 
@@ -67,6 +63,10 @@
    don't. */
 #undef HAVE_DECL_FTELLO64
 
+/* Define to 1 if you have the declaration of `snprintf', and to 0 if you
+   don't. */
+#undef HAVE_DECL_SNPRINTF
+
 /* Define to 1 if you have the declaration of `stpcpy', and to 0 if you don't.
    */
 #undef HAVE_DECL_STPCPY
@@ -75,6 +75,18 @@
    don't. */
 #undef HAVE_DECL_STRNLEN
 
+/* Define to 1 if you have the declaration of `strtol', and to 0 if you don't.
+   */
+#undef HAVE_DECL_STRTOL
+
+/* Define to 1 if you have the declaration of `strtoll', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRTOLL
+
+/* Define to 1 if you have the declaration of `strtoul', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRTOUL
+
 /* Define to 1 if you have the declaration of `strtoull', and to 0 if you
    don't. */
 #undef HAVE_DECL_STRTOULL
@@ -82,6 +94,10 @@
 /* Define to 1 if you have the declaration of `vasprintf', and to 0 if you
    don't. */
 #undef HAVE_DECL_VASPRINTF
+
+/* Define to 1 if you have the declaration of `vsnprintf', and to 0 if you
+   don't. */
+#undef HAVE_DECL_VSNPRINTF
 
 /* Define to 1 if you have the declaration of `___lc_codepage_func', and to 0
    if you don't. */

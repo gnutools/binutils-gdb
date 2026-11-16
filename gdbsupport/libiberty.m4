@@ -26,6 +26,6 @@ AC_DEFUN([libiberty_INIT],
 
   AC_CHECK_DECLS([basename(char *)])
   AC_CHECK_DECLS_ONCE([ffs, asprintf, vasprintf, snprintf, vsnprintf])
-  AC_CHECK_DECLS_ONCE([strtol, strtoul, strtoll, strtoull])
-  AC_CHECK_DECLS_ONCE([strverscmp])
+  AC_CHECK_DECLS_ONCE([strtol, strtoul, strtoll, strtoull, strnlen])
+  AC_CHECK_DECLS_ONCE([strverscmp, mkstemps])
 ])

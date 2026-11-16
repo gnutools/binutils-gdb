@@ -17613,6 +17613,76 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_BASENAME $ac_have_decl
 _ACEOF
+ac_fn_c_check_decl "$LINENO" "mkstemps" "ac_cv_have_decl_mkstemps" "$ac_includes_default"
+if test "x$ac_cv_have_decl_mkstemps" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_MKSTEMPS $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "snprintf" "ac_cv_have_decl_snprintf" "$ac_includes_default"
+if test "x$ac_cv_have_decl_snprintf" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_SNPRINTF $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "vsnprintf" "ac_cv_have_decl_vsnprintf" "$ac_includes_default"
+if test "x$ac_cv_have_decl_vsnprintf" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_VSNPRINTF $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtol" "ac_cv_have_decl_strtol" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtol" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtoul" "ac_cv_have_decl_strtoul" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtoul" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOUL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtoul" "ac_cv_have_decl_strtoul" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtoul" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOUL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtoull" "ac_cv_have_decl_strtoull" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtoull" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOULL $ac_have_decl
+_ACEOF
 
 for ac_func in clock_gettime strsignal
 do :

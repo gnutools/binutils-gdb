@@ -51,9 +51,17 @@
 /* Is the prototype for getopt in <unistd.h> in the expected format? */
 #undef HAVE_DECL_GETOPT
 
+/* Define to 1 if you have the declaration of `mkstemps', and to 0 if you
+   don't. */
+#undef HAVE_DECL_MKSTEMPS
+
 /* Define to 1 if you have the declaration of `snprintf', and to 0 if you
    don't. */
 #undef HAVE_DECL_SNPRINTF
+
+/* Define to 1 if you have the declaration of `strnlen', and to 0 if you
+   don't. */
+#undef HAVE_DECL_STRNLEN
 
 /* Define to 1 if you have the declaration of `strtol', and to 0 if you don't.
    */

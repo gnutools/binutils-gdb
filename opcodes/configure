@@ -13981,15 +13981,15 @@ fi
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_ASPRINTF $ac_have_decl
 _ACEOF
-ac_fn_c_check_decl "$LINENO" "basename" "ac_cv_have_decl_basename" "$ac_includes_default"
-if test "x$ac_cv_have_decl_basename" = xyes; then :
+ac_fn_c_check_decl "$LINENO" "vasprintf" "ac_cv_have_decl_vasprintf" "$ac_includes_default"
+if test "x$ac_cv_have_decl_vasprintf" = xyes; then :
   ac_have_decl=1
 else
   ac_have_decl=0
 fi
 
 cat >>confdefs.h <<_ACEOF
-#define HAVE_DECL_BASENAME $ac_have_decl
+#define HAVE_DECL_VASPRINTF $ac_have_decl
 _ACEOF
 ac_fn_c_check_decl "$LINENO" "snprintf" "ac_cv_have_decl_snprintf" "$ac_includes_default"
 if test "x$ac_cv_have_decl_snprintf" = xyes; then :
@@ -14010,6 +14010,36 @@ fi
 
 cat >>confdefs.h <<_ACEOF
 #define HAVE_DECL_STPCPY $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtol" "ac_cv_have_decl_strtol" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtol" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strtoul" "ac_cv_have_decl_strtoul" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strtoul" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRTOUL $ac_have_decl
+_ACEOF
+ac_fn_c_check_decl "$LINENO" "strnlen" "ac_cv_have_decl_strnlen" "$ac_includes_default"
+if test "x$ac_cv_have_decl_strnlen" = xyes; then :
+  ac_have_decl=1
+else
+  ac_have_decl=0
+fi
+
+cat >>confdefs.h <<_ACEOF
+#define HAVE_DECL_STRNLEN $ac_have_decl
 _ACEOF
 ac_fn_c_check_decl "$LINENO" "strtoull" "ac_cv_have_decl_strtoull" "$ac_includes_default"
 if test "x$ac_cv_have_decl_strtoull" = xyes; then :

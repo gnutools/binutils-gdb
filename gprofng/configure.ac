@@ -245,7 +245,7 @@ AC_SUBST(GPROFNG_NO_SWITCH_CFLAGS)
 AC_SUBST(GPROFNG_CPPFLAGS, [${gprofng_cppflags}])
 AC_SUBST(NOLTO_CFLAGS, [${nolto_cflags}])
 
-AC_CHECK_DECLS([basename])
+AC_CHECK_DECLS([basename, mkstemps, snprintf, vsnprintf, strtol, strtoul, strtoul, strtoull])
 AC_CHECK_FUNCS(clock_gettime strsignal)
 
 # For riscv builds inside incomplete environments such as during intermediate
