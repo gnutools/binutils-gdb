@@ -1,12 +1,13 @@
-# serial 35
-# Determine whether we need the chown wrapper.
-
-dnl Copyright (C) 1997-2001, 2003-2005, 2007, 2009-2022 Free Software
+# chown.m4
+# serial 40
+dnl Copyright (C) 1997-2001, 2003-2005, 2007, 2009-2026 Free Software
 dnl Foundation, Inc.
-
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
+
+# Determine whether we need the chown wrapper.
 
 # chown should accept arguments of -1 for uid and gid, and it should
 # dereference symlinks.  If it doesn't, arrange to use the replacement
@@ -20,7 +21,7 @@ AC_DEFUN([AC_FUNC_CHOWN],
 [
   AC_REQUIRE([AC_TYPE_UID_T])dnl
   AC_REQUIRE([AC_CANONICAL_HOST])dnl for cross-compiles
-  AC_CHECK_HEADERS([unistd.h])
+  AC_CHECK_HEADERS_ONCE([unistd.h])
   AC_CACHE_CHECK([for working chown],
     [ac_cv_func_chown_works],
     [AC_RUN_IFELSE(
@@ -46,14 +47,14 @@ AC_DEFUN([AC_FUNC_CHOWN],
        [ac_cv_func_chown_works=yes],
        [ac_cv_func_chown_works=no],
        [case "$host_os" in # ((
-                           # Guess yes on Linux systems.
-          linux-* | linux) ac_cv_func_chown_works="guessing yes" ;;
-                           # Guess yes on glibc systems.
-          *-gnu* | gnu*)   ac_cv_func_chown_works="guessing yes" ;;
-                           # Guess no on native Windows.
-          mingw*)          ac_cv_func_chown_works="guessing no" ;;
-                           # If we don't know, obey --enable-cross-guesses.
-          *)               ac_cv_func_chown_works="$gl_cross_guess_normal" ;;
+                             # Guess yes on Linux systems.
+          linux-* | linux)   ac_cv_func_chown_works="guessing yes" ;;
+                             # Guess yes on glibc systems.
+          *-gnu* | gnu*)     ac_cv_func_chown_works="guessing yes" ;;
+                             # Guess no on native Windows.
+          mingw* | windows*) ac_cv_func_chown_works="guessing no" ;;
+                             # If we don't know, obey --enable-cross-guesses.
+          *)                 ac_cv_func_chown_works="$gl_cross_guess_normal" ;;
         esac
        ])
      rm -f conftest.chown
@@ -130,38 +131,42 @@ AC_DEFUN_ONCE([gl_FUNC_CHOWN],
     esac
 
     dnl OpenBSD fails to update ctime if ownership does not change.
-    AC_CACHE_CHECK([whether chown always updates ctime],
+    AC_CACHE_CHECK([whether chown updates ctime per POSIX],
       [gl_cv_func_chown_ctime_works],
-      [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
+      [dnl This test is tricky as it depends on timing and file timestamp
+       dnl resolution, and there were false positives when configuring with
+       dnl Linux fakeroot. Since the problem occurs only on OpenBSD and Cygwin,
+       dnl test only on these platforms.
+       AS_CASE([$host_os],
+         [openbsd* | cygwin*],
+          [AC_RUN_IFELSE([AC_LANG_PROGRAM([[
 #include <unistd.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 ]GL_MDA_DEFINES],
-        [[struct stat st1, st2;
-          if (close (creat ("conftest.file", 0600))) return 1;
-          if (stat ("conftest.file", &st1)) return 2;
-          sleep (1);
-          if (chown ("conftest.file", st1.st_uid, st1.st_gid)) return 3;
-          if (stat ("conftest.file", &st2)) return 4;
-          if (st2.st_ctime <= st1.st_ctime) return 5;
-        ]])],
-        [gl_cv_func_chown_ctime_works=yes],
-        [gl_cv_func_chown_ctime_works=no],
-        [case "$host_os" in
-                    # Guess yes on glibc systems.
-           *-gnu*)  gl_cv_func_chown_ctime_works="guessing yes" ;;
-                    # Guess yes on musl systems.
-           *-musl*) gl_cv_func_chown_ctime_works="guessing yes" ;;
-                    # If we don't know, obey --enable-cross-guesses.
-           *)       gl_cv_func_chown_ctime_works="$gl_cross_guess_normal" ;;
-         esac
-        ])
-      rm -f conftest.file])
+             [[struct stat st1, st2;
+               if (close (creat ("conftest.file", 0600))) return 1;
+               if (stat ("conftest.file", &st1)) return 2;
+               sleep (1);
+               if (chown ("conftest.file", st1.st_uid, st1.st_gid)) return 3;
+               if (stat ("conftest.file", &st2)) return 4;
+               if (st2.st_ctime <= st1.st_ctime) return 5;
+             ]])],
+             [gl_cv_func_chown_ctime_works=yes],
+             [gl_cv_func_chown_ctime_works=no],
+             [# Obey --enable-cross-guesses.
+              gl_cv_func_chown_ctime_works="$gl_cross_guess_normal"
+             ])
+           rm -f conftest.file
+          ],
+         [gl_cv_func_chown_ctime_works=yes])
+      ])
     case "$gl_cv_func_chown_ctime_works" in
       *yes) ;;
       *)
+        gl_CHECK_FUNCS_ANDROID([utimensat], [[#include <sys/stat.h>]])
         AC_DEFINE([CHOWN_CHANGE_TIME_BUG], [1], [Define to 1 if chown fails
           to change ctime when at least one argument was not -1.])
         REPLACE_CHOWN=1

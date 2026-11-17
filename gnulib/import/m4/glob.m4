@@ -1,8 +1,10 @@
-# glob.m4 serial 26
-dnl Copyright (C) 2005-2007, 2009-2022 Free Software Foundation, Inc.
+# glob.m4
+# serial 34
+dnl Copyright (C) 2005-2007, 2009-2026 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 # The glob module assumes you want GNU glob, with glob_pattern_p etc,
 # rather than vanilla POSIX glob.  This means your code should
@@ -12,21 +14,73 @@ AC_DEFUN([gl_GLOB],
 [
   AC_REQUIRE([gl_GLOB_H])
 
-  AC_CHECK_FUNCS_ONCE([glob glob_pattern_p])
+  AC_CHECK_FUNCS_ONCE([glob_pattern_p])
+  gl_CHECK_FUNCS_ANDROID([glob], [[#include <glob.h>]])
   if test $ac_cv_func_glob = no; then
     HAVE_GLOB=0
+    case "$gl_cv_onwards_func_glob" in
+      future*) REPLACE_GLOB=1 ;;
+    esac
   else
 
-    AC_CACHE_CHECK([for GNU glob interface version 1 or 2],
-      [gl_cv_gnu_glob_interface_version_1_2],
-[     AC_COMPILE_IFELSE([AC_LANG_SOURCE(
-[[#include <gnu-versions.h>
-char a[_GNU_GLOB_INTERFACE_VERSION == 1 || _GNU_GLOB_INTERFACE_VERSION == 2 ? 1 : -1];]])],
-        [gl_cv_gnu_glob_interface_version_1_2=yes],
-        [gl_cv_gnu_glob_interface_version_1_2=no])])
-    if test "$gl_cv_gnu_glob_interface_version_1_2" = "no"; then
-      REPLACE_GLOB=1
-    fi
+    AC_CACHE_CHECK([whether glob overflows the stack with recursive calls],
+      [gl_cv_glob_overflows_stack],
+      [AC_RUN_IFELSE(
+         [AC_LANG_SOURCE([[
+            #include <stddef.h>
+            #include <stdlib.h>
+            #include <string.h>
+            #include <glob.h>
+            int
+            main (void)
+            {
+              /* Test that glob with many trailing slashes or slashes following
+                 a wildcard does not overflow the stack as it did in glibc 2.42
+                 and earlier.  */
+              char *p = malloc (10000);
+              glob_t g;
+              int result = 0;
+              if (p != NULL)
+                {
+                  /* This test fails on glibc <= 2.42 (stack overflow),
+                     Android.  */
+                  memset (p, '/', 9999);
+                  p[9999] = '\0';
+                  if (glob (p, 0, NULL, &g) != 0)
+                    result |= 1;
+                  globfree (&g);
+                  #if !defined __ANDROID__
+                  /* This test fails on Cygwin 3.6.4 (return value
+                     GLOB_ABORTED).  */
+                  memset (p, '/', 9997);
+                  p[1] = '*';
+                  strcpy (p + 9997, "sh");
+                  if (glob (p, 0, NULL, &g) != 0)
+                    result |= 2;
+                  globfree (&g);
+                  #endif
+                }
+              return result;
+            }]])],
+         [gl_cv_glob_overflows_stack=no],
+         [gl_cv_glob_overflows_stack=yes],
+         [case "$host_os" in
+                             # Guess yes on glibc systems.
+            *-gnu* | gnu*)   gl_cv_glob_overflows_stack="guessing yes" ;;
+                             # Guess yes on Cygwin.
+            cygwin*)         gl_cv_glob_overflows_stack="guessing yes" ;;
+                             # Guess yes on Android.
+            linux*-android*) gl_cv_glob_overflows_stack="guessing yes" ;;
+                             # If we don't know, obey --enable-cross-guesses.
+            *)               gl_cv_glob_overflows_stack="$gl_cross_guess_inverted" ;;
+          esac
+         ])
+      ])
+
+    case $gl_cv_glob_overflows_stack in
+      *yes) REPLACE_GLOB=1 ;;
+      *) REPLACE_GLOB=0 ;;
+    esac
 
     if test $REPLACE_GLOB = 0; then
       AC_CACHE_CHECK([whether glob lists broken symlinks],
@@ -125,5 +179,6 @@ AC_DEFUN([gl_PREREQ_GLOB],
 [
   AC_REQUIRE([gl_CHECK_TYPE_STRUCT_DIRENT_D_TYPE])
   AC_CHECK_HEADERS_ONCE([unistd.h])
-  AC_CHECK_FUNCS_ONCE([getlogin_r getpwnam_r])
+  gl_CHECK_FUNCS_ANDROID([getlogin_r], [[#include <unistd.h>]])
+  gl_CHECK_FUNCS_ANDROID([getpwnam_r], [[#include <pwd.h>]])
 ])

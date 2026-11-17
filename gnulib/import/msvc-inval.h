@@ -1,5 +1,5 @@
 /* Invalid parameter handler for MSVC runtime libraries.
-   Copyright (C) 2011-2022 Free Software Foundation, Inc.
+   Copyright (C) 2011-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -52,6 +52,11 @@
        AC_DEFINE([MSVC_INVALID_PARAMETER_HANDLING], [SANE_LIBRARY_HANDLING])
  */
 
+/* This file uses HAVE_MSVC_INVALID_PARAMETER_HANDLER.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #define DEFAULT_HANDLING       0
 #define HAIRY_LIBRARY_HANDLING 1
 #define SANE_LIBRARY_HANDLING  2
@@ -70,7 +75,7 @@ extern "C" {
 
 /* Ensure that the invalid parameter handler in installed that just returns.
    Because we assume no other part of the program installs a different
-   invalid parameter handler, this solution is multithread-safe.  */
+   invalid parameter handler, this solution is thread-safe.  */
 extern void gl_msvc_inval_ensure_handler (void);
 
 #  ifdef __cplusplus
@@ -107,7 +112,7 @@ extern void gl_msvc_inval_ensure_handler (void);
 /* A compiler that supports __try/__except, as described in the page
    "try-except statement" on microsoft.com
    <https://docs.microsoft.com/en-us/cpp/cpp/try-except-statement>.
-   With __try/__except, we can use the multithread-safe exception handling.  */
+   With __try/__except, we can use the thread-safe exception handling.  */
 
 #   ifdef __cplusplus
 extern "C" {
@@ -116,7 +121,7 @@ extern "C" {
 /* Ensure that the invalid parameter handler in installed that raises a
    software exception with code STATUS_GNULIB_INVALID_PARAMETER.
    Because we assume no other part of the program installs a different
-   invalid parameter handler, this solution is multithread-safe.  */
+   invalid parameter handler, this solution is thread-safe.  */
 extern void gl_msvc_inval_ensure_handler (void);
 
 #   ifdef __cplusplus
@@ -161,11 +166,11 @@ struct gl_msvc_inval_per_thread
    control to the gl_msvc_inval_restart if it is valid, or raises a
    software exception with code STATUS_GNULIB_INVALID_PARAMETER otherwise.
    Because we assume no other part of the program installs a different
-   invalid parameter handler, this solution is multithread-safe.  */
+   invalid parameter handler, this solution is thread-safe.  */
 extern void gl_msvc_inval_ensure_handler (void);
 
 /* Return a pointer to the per-thread data for the current thread.  */
-extern struct gl_msvc_inval_per_thread *gl_msvc_inval_current (void);
+extern struct gl_msvc_inval_per_thread *_gl_msvc_inval_current (void);
 
 #   ifdef __cplusplus
 }
@@ -174,9 +179,9 @@ extern struct gl_msvc_inval_per_thread *gl_msvc_inval_current (void);
 #   define TRY_MSVC_INVAL \
       do                                                                       \
         {                                                                      \
-          struct gl_msvc_inval_per_thread *msvc_inval_current;                 \
           gl_msvc_inval_ensure_handler ();                                     \
-          msvc_inval_current = gl_msvc_inval_current ();                       \
+          struct gl_msvc_inval_per_thread *msvc_inval_current =                \
+            _gl_msvc_inval_current ();                                         \
           /* First, initialize gl_msvc_inval_restart.  */                      \
           if (setjmp (msvc_inval_current->restart) == 0)                       \
             {                                                                  \

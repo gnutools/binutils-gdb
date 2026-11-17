@@ -1,4 +1,4 @@
-# Copyright (C) 2002-2022 Free Software Foundation, Inc.
+# Copyright (C) 2002-2026 Free Software Foundation, Inc.
 #
 # This file is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -38,6 +38,7 @@
 #  --no-libtool \
 #  --macro-prefix=gl \
 #  --no-vc-files \
+#  --avoid=pthread-once \
 #  accept \
 #  alloca \
 #  bind \
@@ -80,6 +81,7 @@
 #  signal-h \
 #  socket \
 #  strchrnul \
+#  streq \
 #  strerror_r-posix \
 #  strstr \
 #  strtok_r \
@@ -137,6 +139,7 @@ gl_MODULES([
   signal-h
   socket
   strchrnul
+  streq
   strerror_r-posix
   strstr
   strtok_r
@@ -149,7 +152,7 @@ gl_MODULES([
   wchar
   wctype-h
 ])
-gl_AVOID([])
+gl_AVOID([pthread-once])
 gl_SOURCE_BASE([import])
 gl_M4_BASE([import/m4])
 gl_PO_BASE([])

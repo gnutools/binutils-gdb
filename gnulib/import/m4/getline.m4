@@ -1,11 +1,13 @@
-# getline.m4 serial 30
+# getline.m4
+# serial 36
 
-dnl Copyright (C) 1998-2003, 2005-2007, 2009-2022 Free Software Foundation,
+dnl Copyright (C) 1998-2003, 2005-2007, 2009-2026 Free Software Foundation,
 dnl Inc.
 dnl
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 AC_PREREQ([2.59])
 
@@ -23,12 +25,9 @@ AC_DEFUN([gl_FUNC_GETLINE],
 
   AC_CHECK_DECLS_ONCE([getline])
 
-  gl_getline_needs_run_time_check=no
-  AC_CHECK_FUNC([getline],
-                [dnl Found it in some library.  Verify that it works.
-                 gl_getline_needs_run_time_check=yes],
-                [am_cv_func_working_getline=no])
-  if test $gl_getline_needs_run_time_check = yes; then
+  gl_CHECK_FUNCS_ANDROID([getline], [[#include <stdio.h>]])
+  if test $ac_cv_func_getline = yes; then
+    dnl Found it in some library.  Verify that it works.
     AC_CACHE_CHECK([for working getline function],
       [am_cv_func_working_getline],
       [echo fooNbarN | tr -d '\012' | tr N '\012' > conftest.data
@@ -39,6 +38,7 @@ AC_DEFUN([gl_FUNC_GETLINE],
     int main ()
     {
       FILE *in = fopen ("./conftest.data", "r");
+      int result = 0;
       if (!in)
         return 1;
       {
@@ -48,7 +48,7 @@ AC_DEFUN([gl_FUNC_GETLINE],
         size_t siz = 0;
         int len = getline (&line, &siz, in);
         if (!(len == 4 && line && strcmp (line, "foo\n") == 0))
-          { free (line); fclose (in); return 2; }
+          result |= 2;
         free (line);
       }
       {
@@ -57,11 +57,11 @@ AC_DEFUN([gl_FUNC_GETLINE],
         char *line = NULL;
         size_t siz = (size_t)(~0) / 4;
         if (getline (&line, &siz, in) == -1)
-          { fclose (in); return 3; }
+          result |= 4;
         free (line);
       }
       fclose (in);
-      return 0;
+      return result;
     }
     ]])],
          [am_cv_func_working_getline=yes],
@@ -79,12 +79,18 @@ AC_DEFUN([gl_FUNC_GETLINE],
             ],
             [am_cv_func_working_getline="guessing yes"],
             [case "$host_os" in
-               *-musl*) am_cv_func_working_getline="guessing yes" ;;
-               *)       am_cv_func_working_getline="$gl_cross_guess_normal" ;;
+               *-musl* | midipix*) am_cv_func_working_getline="guessing yes" ;;
+               *)                  am_cv_func_working_getline="$gl_cross_guess_normal" ;;
              esac
             ])
          ])
+       rm -f conftest.data
       ])
+  else
+    am_cv_func_working_getline=no
+    case "$gl_cv_onwards_func_getline" in
+      future*) REPLACE_GETLINE=1 ;;
+    esac
   fi
 
   if test $ac_cv_have_decl_getline = no; then

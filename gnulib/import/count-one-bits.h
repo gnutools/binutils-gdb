@@ -1,5 +1,5 @@
 /* count-one-bits.h -- counts the number of 1-bits in a word.
-   Copyright (C) 2007-2022 Free Software Foundation, Inc.
+   Copyright (C) 2007-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -19,12 +19,14 @@
 #ifndef COUNT_ONE_BITS_H
 #define COUNT_ONE_BITS_H 1
 
+/* This file uses _GL_INLINE_HEADER_BEGIN, _GL_INLINE.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 #include <limits.h>
 #include <stdlib.h>
 
-#ifndef _GL_INLINE_HEADER_BEGIN
- #error "Please include config.h first."
-#endif
 _GL_INLINE_HEADER_BEGIN
 #ifndef COUNT_ONE_BITS_INLINE
 # define COUNT_ONE_BITS_INLINE _GL_INLINE
@@ -63,8 +65,7 @@ count_one_bits_32 (unsigned int x)
     do                                                                  \
       {                                                                 \
         int count = 0;                                                  \
-        int bits;                                                       \
-        for (bits = 0; bits < sizeof (TYPE) * CHAR_BIT; bits += 32)     \
+        for (int bits = 0; bits < sizeof (TYPE) * CHAR_BIT; bits += 32) \
           {                                                             \
             count += count_one_bits_32 (x);                             \
             x = x >> 31 >> 1;                                           \
@@ -83,9 +84,12 @@ count_one_bits_32 (unsigned int x)
 #   include <intrin.h>
 #  else
     /* Don't pollute the namespace with too many MSVC intrinsics.  */
+extern void __cpuid (int[4], int);
 #   pragma intrinsic (__cpuid)
+extern unsigned int __popcnt (unsigned int);
 #   pragma intrinsic (__popcnt)
 #   if defined _M_X64
+extern unsigned long long __popcnt64 (unsigned long long);
 #    pragma intrinsic (__popcnt64)
 #   endif
 #  endif

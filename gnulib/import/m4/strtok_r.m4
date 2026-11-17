@@ -1,9 +1,11 @@
-# strtok_r.m4 serial 16
-dnl Copyright (C) 2002-2004, 2006-2007, 2009-2022 Free Software Foundation,
+# strtok_r.m4
+# serial 17
+dnl Copyright (C) 2002-2004, 2006-2007, 2009-2026 Free Software Foundation,
 dnl Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
 
 AC_DEFUN([gl_FUNC_STRTOK_R],
 [
@@ -19,7 +21,7 @@ AC_DEFUN([gl_FUNC_STRTOK_R],
     dnl when the second argument to strtok_r is a constant string that has
     dnl exactly one byte and compiling with optimization.  This bug is, for
     dnl example, present in the glibc 2.7-18 package in Debian "lenny".
-    dnl See <https://sourceware.org/bugzilla/show_bug.cgi?id=5614>.
+    dnl See <https://sourceware.org/PR5614>.
     AC_CACHE_CHECK([whether strtok_r works], [gl_cv_func_strtok_r_works],
       [AC_RUN_IFELSE(
          [AC_LANG_PROGRAM([[
@@ -42,11 +44,11 @@ AC_DEFUN([gl_FUNC_STRTOK_R],
          [gl_cv_func_strtok_r_works=yes],
          [gl_cv_func_strtok_r_works=no],
          [case "$host_os" in
-                           # Guess no on glibc systems.
-            *-gnu* | gnu*) gl_cv_func_strtok_r_works="guessing no" ;;
-                           # Guess yes on native Windows.
-            mingw*)        gl_cv_func_strtok_r_works="guessing yes" ;;
-            *)             gl_cv_func_strtok_r_works="guessing yes" ;;
+                               # Guess no on glibc systems.
+            *-gnu* | gnu*)     gl_cv_func_strtok_r_works="guessing no" ;;
+                               # Guess yes on native Windows.
+            mingw* | windows*) gl_cv_func_strtok_r_works="guessing yes" ;;
+            *)                 gl_cv_func_strtok_r_works="guessing yes" ;;
           esac
          ])
       ])

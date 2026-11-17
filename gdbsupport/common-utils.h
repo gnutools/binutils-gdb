@@ -127,14 +127,6 @@ endswith (std::string_view str, std::string_view pattern)
 	  && str.substr (str.length () - pattern.length ()) == pattern);
 }
 
-/* Return true if the strings are equal.  */
-
-static inline bool
-streq (const char *lhs, const char *rhs)
-{
-  return strcmp (lhs, rhs) == 0;
-}
-
 /* Compare C strings for std::sort.  */
 
 static inline bool

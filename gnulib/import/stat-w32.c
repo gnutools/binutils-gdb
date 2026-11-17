@@ -1,5 +1,5 @@
 /* Core of implementation of fstat and stat for native Windows.
-   Copyright (C) 2017-2022 Free Software Foundation, Inc.
+   Copyright (C) 2017-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -50,7 +50,6 @@
 #include "stat-w32.h"
 
 #include "pathmax.h"
-#include "verify.h"
 
 /* Don't assume that UNICODE is not defined.  */
 #undef LoadLibrary
@@ -113,11 +112,11 @@ initialize (void)
 struct timespec
 _gl_convert_FILETIME_to_timespec (const FILETIME *ft)
 {
-  struct timespec result;
   /* FILETIME: <https://docs.microsoft.com/en-us/windows/desktop/api/minwinbase/ns-minwinbase-filetime> */
   unsigned long long since_1601 =
     ((unsigned long long) ft->dwHighDateTime << 32)
     | (unsigned long long) ft->dwLowDateTime;
+  struct timespec result;
   if (since_1601 == 0)
     {
       result.tv_sec = 0;
@@ -228,7 +227,7 @@ _gl_fstat_by_handle (HANDLE h, const char *path, struct stat *buf)
           if (GetFileInformationByHandleExFunc (h, FileIdInfo, &id, sizeof (id)))
             {
               buf->st_dev = id.VolumeSerialNumber;
-              verify (sizeof (ino_t) == sizeof (id.FileId));
+              static_assert (sizeof (ino_t) == sizeof (id.FileId));
               memcpy (&buf->st_ino, &id.FileId, sizeof (ino_t));
               goto ino_done;
             }
@@ -283,15 +282,25 @@ _gl_fstat_by_handle (HANDLE h, const char *path, struct stat *buf)
           if (info.nFileSizeHigh > 0 || info.nFileSizeLow > 0)
             {
               char fpath[PATH_MAX];
-              if (path != NULL
-                  || (GetFinalPathNameByHandleFunc != NULL
-                      && GetFinalPathNameByHandleFunc (h, fpath, sizeof (fpath), VOLUME_NAME_NONE)
-                         < sizeof (fpath)
-                      && (path = fpath, 1)))
+              if (GetFinalPathNameByHandleFunc != NULL
+                  && GetFinalPathNameByHandleFunc (h, fpath, sizeof (fpath), VOLUME_NAME_NONE)
+                     < sizeof (fpath))
+                {
+                  size_t length = strlen (fpath);
+                  if (length >= 4 && fpath[length - 4] == '.')
+                    {
+                      const char *suffix = fpath + length - 3;
+                      if (_strnicmp (suffix, "exe", 3) == 0
+                          || _strnicmp (suffix, "bat", 3) == 0
+                          || _strnicmp (suffix, "cmd", 3) == 0
+                          || _strnicmp (suffix, "com", 3) == 0)
+                        mode |= S_IEXEC_UGO;
+                    }
+                }
+              else if (path != NULL)
                 {
                   const char *last_dot = NULL;
-                  const char *p;
-                  for (p = path; *p != '\0'; p++)
+                  for (const char *p = path; *p != '\0'; p++)
                     if (*p == '.')
                       last_dot = p;
                   if (last_dot != NULL)

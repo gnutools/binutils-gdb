@@ -1,5 +1,5 @@
 /* Reentrant string tokenizer.  Generic version.
-   Copyright (C) 1991, 1996-1999, 2001, 2004, 2007, 2009-2022 Free Software
+   Copyright (C) 1991, 1996-1999, 2001, 2004, 2007, 2009-2026 Free Software
    Foundation, Inc.
    This file is part of the GNU C Library.
 
@@ -43,8 +43,6 @@
 char *
 __strtok_r (char *s, const char *delim, char **save_ptr)
 {
-  char *token;
-
   if (s == NULL)
     s = *save_ptr;
 
@@ -57,7 +55,7 @@ __strtok_r (char *s, const char *delim, char **save_ptr)
     }
 
   /* Find the end of the token.  */
-  token = s;
+  char *token = s;
   s = strpbrk (token, delim);
   if (s == NULL)
     /* This token finishes the string.  */

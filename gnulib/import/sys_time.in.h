@@ -1,6 +1,6 @@
 /* Provide a more complete sys/time.h.
 
-   Copyright (C) 2007-2022 Free Software Foundation, Inc.
+   Copyright (C) 2007-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -24,6 +24,13 @@
 #endif
 @PRAGMA_COLUMNS@
 
+/* This file uses #include_next of a system file that defines time_t.
+   For the 'year2038' module to work right, <config.h> needs to have been
+   included before.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
+
 /* On Cygwin and on many BSDish systems, <sys/time.h> includes itself
    recursively via <sys/select.h>.
    Simply delegate to the system's header in this case; it is a no-op.
@@ -40,6 +47,11 @@
 
 #ifndef _@GUARD_PREFIX@_SYS_TIME_H
 #define _@GUARD_PREFIX@_SYS_TIME_H
+
+/* This file uses GNULIB_POSIXCHECK, HAVE_RAW_DECL_*.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 #if ! @HAVE_SYS_TIME_H@
 # include <time.h>
@@ -93,14 +105,14 @@ struct timeval
 #   define gettimeofday rpl_gettimeofday
 #  endif
 _GL_FUNCDECL_RPL (gettimeofday, int,
-                  (struct timeval *restrict, void *restrict)
+                  (struct timeval *restrict, void *restrict),
                   _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (gettimeofday, int,
                   (struct timeval *restrict, void *restrict));
 # else
 #  if !@HAVE_GETTIMEOFDAY@
 _GL_FUNCDECL_SYS (gettimeofday, int,
-                  (struct timeval *restrict, void *restrict)
+                  (struct timeval *restrict, void *restrict),
                   _GL_ARG_NONNULL ((1)));
 #  endif
 /* Need to cast, because on glibc systems, by default, the second argument is
@@ -121,7 +133,6 @@ namespace GNULIB_NAMESPACE {
 }
 # endif
 #elif defined GNULIB_POSIXCHECK
-# undef gettimeofday
 # if HAVE_RAW_DECL_GETTIMEOFDAY
 _GL_WARN_ON_USE (gettimeofday, "gettimeofday is unportable - "
                  "use gnulib module gettimeofday for portability");

@@ -38,9 +38,11 @@ $(error missing GNULIB_PARENT_DIR)
 endif
 
 LIBGNU = $(GNULIB_PARENT_DIR)/gnulib/import/libgnu.a
+
 LIBGNU_EXTRA_LIBS = @FREXPL_LIBM@ @FREXP_LIBM@ @INET_NTOP_LIB@ \
-                    @LIBTHREAD@ @LIB_GETLOGIN@ @LIB_GETRANDOM@ \
-                    @LIB_HARD_LOCALE@ @LIB_MBRTOWC@ \
-                    @LIB_SETLOCALE_NULL@ @LIBINTL@ @LIB_SELECT@ @LIBSOCKET@
+                    @LIBTHREAD@ @GETLOGIN_LIB@ @GETRANDOM_LIB@ \
+                    @HARD_LOCALE_LIB@ @MBRTOWC_LIB@ \
+                    @SETLOCALE_NULL_LIB@ @LIBINTL@ @SELECT_LIB@ @LIBSOCKET@
+
 INCGNU = -I$(srcdir)/$(GNULIB_PARENT_DIR)/gnulib/import \
          -I$(GNULIB_PARENT_DIR)/gnulib/import

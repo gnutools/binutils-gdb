@@ -1,5 +1,5 @@
 /* Invalid parameter handler for MSVC runtime libraries.
-   Copyright (C) 2011-2022 Free Software Foundation, Inc.
+   Copyright (C) 2011-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -65,7 +65,7 @@ static int tls_initialized /* = 0 */;
 static struct gl_msvc_inval_per_thread not_per_thread;
 
 struct gl_msvc_inval_per_thread *
-gl_msvc_inval_current (void)
+_gl_msvc_inval_current (void)
 {
   if (!tls_initialized)
     {
@@ -101,7 +101,7 @@ gl_msvc_invalid_parameter_handler (const wchar_t *expression,
                                    unsigned int line,
                                    uintptr_t dummy)
 {
-  struct gl_msvc_inval_per_thread *current = gl_msvc_inval_current ();
+  struct gl_msvc_inval_per_thread *current = _gl_msvc_inval_current ();
   if (current->restart_valid)
     longjmp (current->restart, 1);
   else

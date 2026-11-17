@@ -1,14 +1,18 @@
-dnl Reentrant time functions: localtime_r, gmtime_r.
-
-dnl Copyright (C) 2003, 2006-2022 Free Software Foundation, Inc.
+# time_r.m4
+# serial 2
+dnl Copyright (C) 2003, 2006-2026 Free Software Foundation, Inc.
 dnl This file is free software; the Free Software Foundation
 dnl gives unlimited permission to copy and/or distribute it,
 dnl with or without modifications, as long as this notice is preserved.
+dnl This file is offered as-is, without any warranty.
+
+dnl Reentrant time functions: localtime_r, gmtime_r.
 
 dnl Written by Paul Eggert.
 
 AC_DEFUN([gl_TIME_R],
 [
+  AC_REQUIRE([AC_CANONICAL_HOST])
   dnl Persuade glibc and Solaris <time.h> to declare localtime_r.
   AC_REQUIRE([gl_USE_SYSTEM_EXTENSIONS])
 
@@ -57,9 +61,7 @@ AC_DEFUN([gl_TIME_R],
          [gl_cv_time_r_posix=yes],
          [gl_cv_time_r_posix=no])
       ])
-    if test $gl_cv_time_r_posix = yes; then
-      REPLACE_LOCALTIME_R=0
-    else
+    if test $gl_cv_time_r_posix != yes; then
       REPLACE_LOCALTIME_R=1
     fi
   else
@@ -91,6 +93,12 @@ AC_DEFUN([gl_TIME_R],
       REPLACE_LOCALTIME_R=1
     fi
   fi
+  dnl This inline function definition also has the effect that time_r.o
+  dnl might get created during the build but then get ignored at link time.
+  dnl Force its inclusion at link time.
+  case "$host_os" in
+    mingw* | windows*) REPLACE_LOCALTIME_R=1 ;;
+  esac
 ])
 
 # Prerequisites of lib/time_r.c.

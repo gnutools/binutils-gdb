@@ -1,5 +1,5 @@
 /* ffs.c -- find the first set bit in a word.
-   Copyright (C) 2011-2022 Free Software Foundation, Inc.
+   Copyright (C) 2011-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -58,8 +58,7 @@ ffs (int i)
     }
   else
     {
-      unsigned int j;
-      for (j = 0; j < CHAR_BIT * sizeof i; j++)
+      for (unsigned int j = 0; j < CHAR_BIT * sizeof i; j++)
         if (i & (1U << j))
           return j + 1;
       return 0;

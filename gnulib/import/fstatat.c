@@ -1,6 +1,6 @@
 /* Work around an fstatat bug on Solaris 9.
 
-   Copyright (C) 2006, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2006, 2009-2026 Free Software Foundation, Inc.
 
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -36,14 +36,8 @@ orig_fstatat (int fd, char const *filename, struct stat *buf, int flags)
 }
 #endif
 
-#ifdef __osf__
-/* Write "sys/stat.h" here, not <sys/stat.h>, otherwise OSF/1 5.1 DTK cc
-   eliminates this include because of the preliminary #include <sys/stat.h>
-   above.  */
-# include "sys/stat.h"
-#else
-# include <sys/stat.h>
-#endif
+/* Specification.  */
+#include <sys/stat.h>
 
 #include "stat-time.h"
 
@@ -51,6 +45,10 @@ orig_fstatat (int fd, char const *filename, struct stat *buf, int flags)
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+
+#ifndef AT_EMPTY_PATH
+# define AT_EMPTY_PATH 0
+#endif
 
 #if HAVE_FSTATAT && HAVE_WORKING_FSTATAT_ZERO_FLAG
 
@@ -74,15 +72,19 @@ normal_fstatat (int fd, char const *file, struct stat *st, int flag)
    Work around this bug if FSTATAT_AT_FDCWD_0_BROKEN is nonzero.  */
 
 int
-rpl_fstatat (int fd, char const *file, struct stat *st, int flag)
+rpl_fstatat (int fd, char const *file, struct stat *st, int flags)
 {
-  int result = normal_fstatat (fd, file, st, flag);
-  size_t len;
+  /* Implement Linux kernel 6.11+ behavior on platforms that have
+     AT_EMPTY_PATH but do not support it on null pointers.  */
+  if (flags & AT_EMPTY_PATH && !file)
+    file = "";
 
+  int result = normal_fstatat (fd, file, st, flags);
   if (LSTAT_FOLLOWS_SLASHED_SYMLINK || result != 0)
     return result;
-  len = strlen (file);
-  if (flag & AT_SYMLINK_NOFOLLOW)
+
+  size_t len = strlen (file);
+  if (flags & AT_SYMLINK_NOFOLLOW)
     {
       /* Fix lstat behavior.  */
       if (file[len - 1] != '/' || S_ISDIR (st->st_mode))
@@ -92,7 +94,7 @@ rpl_fstatat (int fd, char const *file, struct stat *st, int flag)
           errno = ENOTDIR;
           return -1;
         }
-      result = normal_fstatat (fd, file, st, flag & ~AT_SYMLINK_NOFOLLOW);
+      result = normal_fstatat (fd, file, st, flags & ~AT_SYMLINK_NOFOLLOW);
     }
   /* Fix stat behavior.  */
   if (result == 0 && !S_ISDIR (st->st_mode) && file[len - 1] == '/')

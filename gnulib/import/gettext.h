@@ -1,6 +1,5 @@
 /* Convenience header for conditional use of GNU <libintl.h>.
-   Copyright (C) 1995-1998, 2000-2002, 2004-2006, 2009-2022 Free Software
-   Foundation, Inc.
+   Copyright (C) 1995-2026 Free Software Foundation, Inc.
 
    This file is free software: you can redistribute it and/or modify
    it under the terms of the GNU Lesser General Public License as
@@ -17,6 +16,7 @@
 
 #ifndef _LIBGETTEXT_H
 #define _LIBGETTEXT_H 1
+
 
 /* NLS can be disabled through the configure --disable-nls option
    or through "#define ENABLE NLS 0" before including this file.  */
@@ -45,59 +45,205 @@
    as well because people using "gettext.h" will not include <libintl.h>,
    and also including <libintl.h> would fail on SunOS 4, whereas <locale.h>
    is OK.  */
-#if defined(__sun)
-# include <locale.h>
-#endif
+# if defined(__sun)
+#  include <locale.h>
+# endif
 
 /* Many header files from the libstdc++ coming with g++ 3.3 or newer include
    <libintl.h>, which chokes if dcgettext is defined as a macro.  So include
    it now, to make later inclusions of <libintl.h> a NOP.  */
-#if defined(__cplusplus) && defined(__GNUG__) && (__GNUC__ >= 3)
-# include <cstdlib>
-# if (__GLIBC__ >= 2 && !defined __UCLIBC__) || _GLIBCXX_HAVE_LIBINTL_H
-#  include <libintl.h>
+# if defined(__cplusplus) && defined(__GNUG__) && (__GNUC__ >= 3)
+#  include <cstdlib>
+#  if (__GLIBC__ >= 2 && !defined __UCLIBC__) || _GLIBCXX_HAVE_LIBINTL_H
+#   include <libintl.h>
+#  endif
 # endif
-#endif
 
-/* Disabled NLS.
-   The casts to 'const char *' serve the purpose of producing warnings
-   for invalid uses of the value returned from these functions.
-   On pre-ANSI systems without 'const', the config.h file is supposed to
-   contain "#define const".  */
-# undef gettext
-# define gettext(Msgid) ((const char *) (Msgid))
-# undef dgettext
-# define dgettext(Domainname, Msgid) ((void) (Domainname), gettext (Msgid))
-# undef dcgettext
-# define dcgettext(Domainname, Msgid, Category) \
-    ((void) (Category), dgettext (Domainname, Msgid))
-# undef ngettext
-# define ngettext(Msgid1, Msgid2, N) \
-    ((N) == 1 \
-     ? ((void) (Msgid2), (const char *) (Msgid1)) \
-     : ((void) (Msgid1), (const char *) (Msgid2)))
-# undef dngettext
-# define dngettext(Domainname, Msgid1, Msgid2, N) \
-    ((void) (Domainname), ngettext (Msgid1, Msgid2, N))
-# undef dcngettext
-# define dcngettext(Domainname, Msgid1, Msgid2, N, Category) \
-    ((void) (Category), dngettext (Domainname, Msgid1, Msgid2, N))
+/* Disabled NLS.  */
+/* When gcc is used with option -Wformat=2, we need to silence
+   "warning: format not a string literal, argument types not checked [-Wformat-nonliteral]"
+   warnings that would occur at every invocation of a *gettext function
+   in a *printf format string position.
+   Do this with inline functions when possible, namely for gettext, dgettext,
+   dcgettext, which are known to gcc as "external built-ins".
+   It is not ideal to ignore the possible side effects done in the
+   Domainname and Category arguments, but it's better than to have a
+   warning at every invocation in a format string position.  */
+/* When clang is used with option -Wformat=2, we need to silence
+   "warning: format string is not a string literal [-Wformat-nonliteral]"
+   warnings that would occur at every invocation of a *gettext function
+   in a *printf format string position.
+   It is not ideal to ignore the possible side effects done in the
+   Domainname and Category arguments, but it's better than to have a
+   warning at every invocation in a format string position.  */
+/* These warnings would not occur with enabled NLS.  */
+/* A test case:
+   ================================ foo.c ================================
+   #include <stdio.h>
+   #include "gettext.h"
+   void foo (int n)
+   {
+     printf (gettext ("foo %d"), n);
+     printf (dgettext ("toto", "foo %d"), n);
+     printf (dcgettext ("toto", "foo %d", LC_MESSAGES), n);
+     printf (ngettext ("foo %d", "bar %d", n), n);
+     printf (dngettext ("toto", "foo %d", "bar %d", n), n);
+     printf (dcngettext ("toto", "foo %d", "bar %d", n, LC_MESSAGES), n);
+   }
+   =======================================================================
+   $CC -Wformat=2 -S foo.c
+ */
+# if defined __GNUC__ && !defined __clang__ && !defined __cplusplus
+/* The return type 'const char *' serves the purpose of producing warnings
+   for invalid uses of the value returned from these functions.  */
+#  if __GNUC__ >= 9
+#   pragma GCC diagnostic push
+#   pragma GCC diagnostic ignored "-Wbuiltin-declaration-mismatch"
+#  endif
+#  if __GNUC__ + (__GNUC_MINOR__ >= 2) > 4
+__attribute__ ((__always_inline__, __gnu_inline__))
+#  else
+__attribute__ ((__always_inline__))
+#  endif
+extern inline
+#  if !defined(__sun)
+const
+#  endif
+char *
+gettext (const char *msgid)
+{
+  return
+#  ifdef __sun
+    (char *)
+#  endif
+    msgid;
+}
+#  if __GNUC__ + (__GNUC_MINOR__ >= 2) > 4
+__attribute__ ((__always_inline__, __gnu_inline__))
+#  else
+__attribute__ ((__always_inline__))
+#  endif
+extern inline
+#  if !defined(__sun)
+const
+#  endif
+char *
+dgettext (const char *domain, const char *msgid)
+{
+  (void) domain;
+  return
+#  ifdef __sun
+    (char *)
+#  endif
+    msgid;
+}
+#  if __GNUC__ + (__GNUC_MINOR__ >= 2) > 4
+__attribute__ ((__always_inline__, __gnu_inline__))
+#  else
+__attribute__ ((__always_inline__))
+#  endif
+extern inline
+#  if !defined(__sun)
+const
+#  endif
+char *
+dcgettext (const char *domain, const char *msgid, int category)
+{
+  (void) domain;
+  (void) category;
+  return
+#  ifdef __sun
+    (char *)
+#  endif
+    msgid;
+}
+#  if __GNUC__ >= 9
+#   pragma GCC diagnostic pop
+#  endif
+# elif defined __clang__
+#  undef gettext
+#  define gettext(Msgid) ((const char *) (Msgid))
+#  undef dgettext
+#  define dgettext(Domainname, Msgid) gettext (Msgid)
+#  undef dcgettext
+#  define dcgettext(Domainname, Msgid, Category) dgettext (Domainname, Msgid)
+# else
+/* The conversions to 'const char *' via compound literals serve the purpose
+   of producing warnings for invalid uses of the value returned from these
+   functions and for invalid-typed Msgid arguments.  */
+#  undef gettext
+#  define gettext(Msgid) ((const char *) {(Msgid)})
+/* The conversions via compound literals serve the purpose of producing warnings
+   for invalid-typed arguments.  */
+#  undef dgettext
+#  define dgettext(Domainname, Msgid) \
+     ((void) (const char *) {(Domainname)}, gettext (Msgid))
+#  undef dcgettext
+#  define dcgettext(Domainname, Msgid, Category) \
+     ((void) (int) {(Category)}, dgettext (Domainname, Msgid))
+# endif
+
+# if (defined __GNUC__ && defined __cplusplus) || defined __clang__
+#  undef ngettext
+#  define ngettext(Msgid1, Msgid2, N) \
+     ((N) == 1 ? (const char *) (Msgid1) : (const char *) (Msgid2))
+#  undef dngettext
+#  define dngettext(Domainname, Msgid1, Msgid2, N) \
+     ngettext (Msgid1, Msgid2, N)
+#  undef dcngettext
+#  define dcngettext(Domainname, Msgid1, Msgid2, N, Category) \
+     dngettext (Domainname, Msgid1, Msgid2, N)
+# elif defined __GNUC__ && !defined __cplusplus
+/* Silence -Wuseless-cast warnings.  */
+#  if __GNUC__ >= 14
+#   pragma GCC diagnostic ignored "-Wuseless-cast"
+#  endif
+#  undef ngettext
+#  define ngettext(Msgid1, Msgid2, N) \
+     ((N) == 1 ? (const char *) (Msgid1) : (const char *) (Msgid2))
+#  undef dngettext
+#  define dngettext(Domainname, Msgid1, Msgid2, N) \
+     ((void) (const char *) (Domainname), ngettext (Msgid1, Msgid2, N))
+#  undef dcngettext
+#  define dcngettext(Domainname, Msgid1, Msgid2, N, Category) \
+     ((void) (int) (Category), dngettext (Domainname, Msgid1, Msgid2, N))
+# else
+/* The conversions to 'const char *' via compound literals serve the purpose
+   of producing warnings for invalid uses of the value returned from these
+   functions and for invalid-typed Msgid1 and Msgid2 arguments.  */
+#  undef ngettext
+#  define ngettext(Msgid1, Msgid2, N) \
+     ((N) == 1 \
+      ? ((void) (Msgid2), (const char *) {(Msgid1)}) \
+      : ((void) (Msgid1), (const char *) {(Msgid2)}))
+/* The conversions via compound literals serve the purpose of producing warnings
+   for invalid-typed arguments.  */
+#  undef dngettext
+#  define dngettext(Domainname, Msgid1, Msgid2, N) \
+     ((void) (const char *) {(Domainname)}, ngettext (Msgid1, Msgid2, N))
+#  undef dcngettext
+#  define dcngettext(Domainname, Msgid1, Msgid2, N, Category) \
+     ((void) (int) {(Category)}, dngettext (Domainname, Msgid1, Msgid2, N))
+# endif
+
 # undef textdomain
-# define textdomain(Domainname) ((const char *) (Domainname))
+# define textdomain(Domainname) ((const char *) {(Domainname)})
 # undef bindtextdomain
 # define bindtextdomain(Domainname, Dirname) \
-    ((void) (Domainname), (const char *) (Dirname))
+    ((void) (const char *) {(Domainname)}, (const char *) {(Dirname)})
 # undef bind_textdomain_codeset
 # define bind_textdomain_codeset(Domainname, Codeset) \
-    ((void) (Domainname), (const char *) (Codeset))
+    ((void) (const char *) {(Domainname)}, (const char *) {(Codeset)})
 
 #endif
+
 
 /* Prefer gnulib's setlocale override over libintl's setlocale override.  */
 #ifdef GNULIB_defined_setlocale
 # undef setlocale
 # define setlocale rpl_setlocale
 #endif
+
 
 /* A pseudo function call that serves as a marker for the automated
    extraction of messages, but does not call gettext().  The run-time
@@ -108,6 +254,7 @@
    initializer for static 'char[]' or 'const char[]' variables.  */
 #define gettext_noop(String) String
 
+
 /* The separator between msgctxt and msgid in a .mo file.  */
 #define GETTEXT_CONTEXT_GLUE "\004"
 
@@ -115,6 +262,14 @@
    MSGID.  MSGCTXT and MSGID must be string literals.  MSGCTXT should be
    short and rarely need to change.
    The letter 'p' stands for 'particular' or 'special'.  */
+
+#include <locale.h> /* for LC_MESSAGES */
+/* The LC_MESSAGES locale category is specified in POSIX, but not in ISO C.
+   On systems that don't define it, use the same value as GNU libintl.  */
+#if !defined LC_MESSAGES
+# define LC_MESSAGES 1729
+#endif
+
 #ifdef DEFAULT_TEXT_DOMAIN
 # define pgettext(Msgctxt, Msgid) \
    pgettext_aux (DEFAULT_TEXT_DOMAIN, Msgctxt GETTEXT_CONTEXT_GLUE Msgid, Msgid, LC_MESSAGES)
@@ -140,10 +295,8 @@
 
 #if defined __GNUC__ || defined __clang__
 __inline
-#else
-#ifdef __cplusplus
+#elif defined __cplusplus
 inline
-#endif
 #endif
 static const char *
 pgettext_aux (const char *domain,
@@ -159,10 +312,8 @@ pgettext_aux (const char *domain,
 
 #if defined __GNUC__ || defined __clang__
 __inline
-#else
-#ifdef __cplusplus
+#elif defined __cplusplus
 inline
-#endif
 #endif
 static const char *
 npgettext_aux (const char *domain,
@@ -178,11 +329,12 @@ npgettext_aux (const char *domain,
     return translation;
 }
 
+
 /* The same thing extended for non-constant arguments.  Here MSGCTXT and MSGID
    can be arbitrary expressions.  But for string literals these macros are
    less efficient than those above.  */
 
-#include <string.h>
+#include <string.h> /* for memcpy */
 
 /* GNULIB_NO_VLA can be defined to disable use of VLAs even if supported.
    This relates to the -Wvla and -Wvla-larger-than warnings, enabled in
@@ -199,7 +351,7 @@ npgettext_aux (const char *domain,
 #endif
 
 #if !_LIBGETTEXT_HAVE_VARIABLE_SIZE_ARRAYS
-#include <stdlib.h>
+# include <stdlib.h> /* for malloc, free */
 #endif
 
 #define pgettext_expr(Msgctxt, Msgid) \
@@ -209,10 +361,8 @@ npgettext_aux (const char *domain,
 
 #if defined __GNUC__ || defined __clang__
 __inline
-#else
-#ifdef __cplusplus
+#elif defined __cplusplus
 inline
-#endif
 #endif
 static const char *
 dcpgettext_expr (const char *domain,
@@ -233,12 +383,11 @@ dcpgettext_expr (const char *domain,
   if (msg_ctxt_id != NULL)
 #endif
     {
-      int found_translation;
       memcpy (msg_ctxt_id, msgctxt, msgctxt_len - 1);
       msg_ctxt_id[msgctxt_len - 1] = '\004';
       memcpy (msg_ctxt_id + msgctxt_len, msgid, msgid_len);
       translation = dcgettext (domain, msg_ctxt_id, category);
-      found_translation = (translation != msg_ctxt_id);
+      int found_translation = (translation != msg_ctxt_id);
 #if !_LIBGETTEXT_HAVE_VARIABLE_SIZE_ARRAYS
       if (msg_ctxt_id != buf)
         free (msg_ctxt_id);
@@ -256,10 +405,8 @@ dcpgettext_expr (const char *domain,
 
 #if defined __GNUC__ || defined __clang__
 __inline
-#else
-#ifdef __cplusplus
+#elif defined __cplusplus
 inline
-#endif
 #endif
 static const char *
 dcnpgettext_expr (const char *domain,
@@ -281,12 +428,11 @@ dcnpgettext_expr (const char *domain,
   if (msg_ctxt_id != NULL)
 #endif
     {
-      int found_translation;
       memcpy (msg_ctxt_id, msgctxt, msgctxt_len - 1);
       msg_ctxt_id[msgctxt_len - 1] = '\004';
       memcpy (msg_ctxt_id + msgctxt_len, msgid, msgid_len);
       translation = dcngettext (domain, msg_ctxt_id, msgid_plural, n, category);
-      found_translation = !(translation == msg_ctxt_id || translation == msgid_plural);
+      int found_translation = !(translation == msg_ctxt_id || translation == msgid_plural);
 #if !_LIBGETTEXT_HAVE_VARIABLE_SIZE_ARRAYS
       if (msg_ctxt_id != buf)
         free (msg_ctxt_id);
@@ -296,5 +442,6 @@ dcnpgettext_expr (const char *domain,
     }
   return (n == 1 ? msgid : msgid_plural);
 }
+
 
 #endif /* _LIBGETTEXT_H */

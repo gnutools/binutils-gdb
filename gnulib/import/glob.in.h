@@ -1,6 +1,6 @@
 /* glob.h -- Find a path matching a pattern.
 
-   Copyright (C) 2005-2007, 2009-2022 Free Software Foundation, Inc.
+   Copyright (C) 2005-2007, 2009-2026 Free Software Foundation, Inc.
 
    Written by Derek Price <derek@ximbiot.com> & Paul Eggert <eggert@CS.UCLA.EDU>
 
@@ -31,6 +31,11 @@
 
 #ifndef _@GUARD_PREFIX@_GLOB_H
 #define _@GUARD_PREFIX@_GLOB_H
+
+/* This file uses GNULIB_POSIXCHECK, HAVE_RAW_DECL_*.  */
+#if !_GL_CONFIG_H_INCLUDED
+ #error "Please include config.h first."
+#endif
 
 /* The definitions of _GL_FUNCDECL_RPL etc. are copied here.  */
 
@@ -104,7 +109,7 @@ typedef int (*_gl_glob_errfunc_fn) (const char *, int);
 # if @REPLACE_GLOB@
 _GL_FUNCDECL_RPL (glob, int, (const char *_Restrict_ __pattern, int __flags,
                               _gl_glob_errfunc_fn __errfunc,
-                              glob_t *_Restrict_ __pglob)
+                              glob_t *_Restrict_ __pglob),
                               _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (glob, int, (const char *_Restrict_ __pattern, int __flags,
                               _gl_glob_errfunc_fn __errfunc,
@@ -113,16 +118,17 @@ _GL_CXXALIAS_RPL (glob, int, (const char *_Restrict_ __pattern, int __flags,
 #  if !@HAVE_GLOB@
 _GL_FUNCDECL_SYS (glob, int, (const char *_Restrict_ __pattern, int __flags,
                               _gl_glob_errfunc_fn __errfunc,
-                              glob_t *_Restrict_ __pglob)
+                              glob_t *_Restrict_ __pglob),
                               _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (glob, int, (const char *_Restrict_ __pattern, int __flags,
                               _gl_glob_errfunc_fn __errfunc,
                               glob_t *_Restrict_ __pglob));
 # endif
+# if __GLIBC__ >= 2
 _GL_CXXALIASWARN (glob);
+# endif
 #elif defined GNULIB_POSIXCHECK
-# undef glob
 # if HAVE_RAW_DECL_GLOB
 _GL_WARN_ON_USE (glob,
                  "glob is unportable - "
@@ -132,17 +138,16 @@ _GL_WARN_ON_USE (glob,
 
 #if @GNULIB_GLOB@
 # if @REPLACE_GLOB@
-_GL_FUNCDECL_RPL (globfree, void, (glob_t *__pglob) _GL_ARG_NONNULL ((1)));
+_GL_FUNCDECL_RPL (globfree, void, (glob_t *__pglob), _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (globfree, void, (glob_t *__pglob));
 # else
 #  if !@HAVE_GLOB@
-_GL_FUNCDECL_SYS (globfree, void, (glob_t *__pglob) _GL_ARG_NONNULL ((1)));
+_GL_FUNCDECL_SYS (globfree, void, (glob_t *__pglob), _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (globfree, void, (glob_t *__pglob));
 # endif
 _GL_CXXALIASWARN (globfree);
 #elif defined GNULIB_POSIXCHECK
-# undef globfree
 # if HAVE_RAW_DECL_GLOBFREE
 _GL_WARN_ON_USE (globfree,
                  "globfree is unportable - "
@@ -152,19 +157,18 @@ _GL_WARN_ON_USE (globfree,
 
 #if @GNULIB_GLOB@
 # if @REPLACE_GLOB_PATTERN_P@
-_GL_FUNCDECL_RPL (glob_pattern_p, int, (const char *__pattern, int __quote)
+_GL_FUNCDECL_RPL (glob_pattern_p, int, (const char *__pattern, int __quote),
                                        _GL_ARG_NONNULL ((1)));
 _GL_CXXALIAS_RPL (glob_pattern_p, int, (const char *__pattern, int __quote));
 # else
 #  if !@HAVE_GLOB_PATTERN_P@
-_GL_FUNCDECL_SYS (glob_pattern_p, int, (const char *__pattern, int __quote)
+_GL_FUNCDECL_SYS (glob_pattern_p, int, (const char *__pattern, int __quote),
                                        _GL_ARG_NONNULL ((1)));
 #  endif
 _GL_CXXALIAS_SYS (glob_pattern_p, int, (const char *__pattern, int __quote));
 # endif
 _GL_CXXALIASWARN (glob_pattern_p);
 #elif defined GNULIB_POSIXCHECK
-# undef glob_pattern_p
 # if HAVE_RAW_DECL_GLOB_PATTERN_P
 _GL_WARN_ON_USE (glob_pattern_p,
                  "glob_pattern_p is unportable - "
