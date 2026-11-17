@@ -169,11 +169,14 @@ if [ "$ver" != "$ACLOCAL_VERSION" ]; then
 fi
 
 # Update our gnulib import.
+# Use --avoid=pthread-once to avoid a partial pthread.h pulled in via
+# dependency chain:
+#   strerror_r-posix -> lock -> once -> pthread-once -> pthread-h.
 $gnulib_prefix/gnulib-tool --import --dir=. --lib=libgnu \
   --source-base=import --m4-base=import/m4 --doc-base=doc \
   --tests-base=tests --aux-dir=import/extra \
   --no-conditional-dependencies --no-libtool --macro-prefix=gl \
-  --no-vc-files \
+  --no-vc-files --avoid=pthread-once \
   $IMPORTED_GNULIB_MODULES
 if [ $? -ne 0 ]; then
    echo "Error: gnulib import failed.  Aborting."
