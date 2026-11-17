@@ -3819,7 +3819,15 @@ find_label_symbols_in_block (const struct block *block,
       size_t name_len = strlen (name);
 
       int (*cmp) (const char *, const char *, size_t);
-      cmp = case_sensitivity == case_sensitive_on ? strncmp : strncasecmp;
+      /* If strncasecmp is overloaded, using a ternary operator
+	   cmp = case_sensitivity == case_sensitive_on ? strncmp : strncasecmp;
+	 gets us:
+	   error: overloaded function with no contextual type information
+	 So instead, use an if/else.  */
+      if (case_sensitivity == case_sensitive_on)
+	cmp = strncmp;
+      else
+	cmp = strncasecmp;
 
       for (struct symbol *sym : block_iterator_range (block))
 	{
