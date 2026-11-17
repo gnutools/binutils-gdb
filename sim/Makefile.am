@@ -58,6 +58,7 @@ AM_CPPFLAGS = \
 	-I.. \
 	-I$(@D) \
 	-I$(srcdir)/$(@D) \
+	-include $(srcdir)/common/defs.h \
 	$(SIM_HW_CFLAGS) \
 	$(SIM_INLINE) \
 	$(AM_CPPFLAGS_$(subst -,_,$(@D))) \

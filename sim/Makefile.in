@@ -1875,7 +1875,8 @@ AM_CFLAGS = \
 	$(AM_CFLAGS_$(subst -,_,$(@D)_$(@F)))
 
 AM_CPPFLAGS = $(INCGNU) -I$(srcroot) -I$(srcroot)/include -I../bfd \
-	-I.. -I$(@D) -I$(srcdir)/$(@D) $(SIM_HW_CFLAGS) $(SIM_INLINE) \
+	-I.. -I$(@D) -I$(srcdir)/$(@D) -include \
+	$(srcdir)/common/defs.h $(SIM_HW_CFLAGS) $(SIM_INLINE) \
 	$(AM_CPPFLAGS_$(subst -,_,$(@D))) $(AM_CPPFLAGS_$(subst \
 	-,_,$(@D)_$(@F))) -I$(srcdir)/common -DSIM_TOPDIR_BUILD
 AM_CPPFLAGS_FOR_BUILD = -I$(srcroot)/include $(SIM_HW_CFLAGS) \
