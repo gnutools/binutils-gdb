@@ -72,6 +72,7 @@ IMPORTED_GNULIB_MODULES="\
     signal-h \
     socket \
     strchrnul \
+    streq \
     strerror_r-posix \
     strstr \
     strtok_r \
