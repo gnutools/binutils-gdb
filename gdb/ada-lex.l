@@ -54,6 +54,11 @@ NOT_COMPLETE [^\001]
 DIAGNOSTIC_PUSH
 DIAGNOSTIC_IGNORE_REGISTER
 
+/* Avoid warnings about unused static function yyunput.  We can't use %option
+   nounput because it's broken in flex 2.5.1, and in theory we do support that
+   version.  */
+DIAGNOSTIC_IGNORE_UNUSED_FUNCTION
+
 #define NUMERAL_WIDTH 256
 #define LONGEST_SIGN ((ULONGEST) 1 << (sizeof(LONGEST) * HOST_CHAR_BIT - 1))
 
@@ -752,12 +757,5 @@ rewind_to_char (int ch)
     pstate->lexptr -= 1;
   yyrestart (NULL);
 }
-
-/* Dummy definition to suppress warnings about unused static definitions. */
-typedef void (*dummy_function) ();
-dummy_function ada_flex_use[] =
-{
-  (dummy_function) yyunput
-};
 
 DIAGNOSTIC_POP

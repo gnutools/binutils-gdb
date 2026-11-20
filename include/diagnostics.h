@@ -73,6 +73,11 @@
    DIAGNOSTIC_IGNORE ("-Wunused-but-set-variable")
 # endif
 
+# if __has_warning ("-Wunused-function")
+#  define DIAGNOSTIC_IGNORE_UNUSED_FUNCTION \
+   DIAGNOSTIC_IGNORE ("-Wunused-function")
+# endif
+
 # define DIAGNOSTIC_ERROR_SWITCH \
   DIAGNOSTIC_ERROR ("-Wswitch")
 
@@ -99,6 +104,11 @@
 # if __GNUC__ >= 5
 #  define DIAGNOSTIC_IGNORE_UNUSED_BUT_SET_VARIABLE \
    DIAGNOSTIC_IGNORE ("-Wunused-but-set-variable")
+# endif
+
+# if __GNUC__ >= 3
+#  define DIAGNOSTIC_IGNORE_UNUSED_FUNCTION \
+   DIAGNOSTIC_IGNORE ("-Wunused-function")
 # endif
 
 # if __GNUC__ >= 13
@@ -148,6 +158,10 @@
 
 #ifndef DIAGNOSTIC_IGNORE_UNUSED_BUT_SET_VARIABLE
 # define DIAGNOSTIC_IGNORE_UNUSED_BUT_SET_VARIABLE
+#endif
+
+#ifndef DIAGNOSTIC_IGNORE_UNUSED_FUNCTION
+# define DIAGNOSTIC_IGNORE_UNUSED_FUNCTION
 #endif
 
 #ifndef DIAGNOSTIC_ERROR_SWITCH
