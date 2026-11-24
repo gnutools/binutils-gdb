@@ -115,7 +115,7 @@ AM_CONDITIONAL(HAVE_LD_VERSION_SCRIPT, test "$have_ld_version_script" = "yes")
 AM_MAINTAINER_MODE
 AM_INSTALL_LIBBFD
 
-GCC_AC_FUNC_MMAP
+AC_FUNC_MMAP
 AC_CHECK_HEADERS(byteswap.h endian.h)
 
 dnl Check for bswap_{16,32,64}

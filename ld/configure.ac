@@ -453,7 +453,7 @@ BFD_BINARY_FOPEN
 
 AC_CHECK_DECLS([environ, stpcpy, strtoull])
 
-GCC_AC_FUNC_MMAP
+AC_FUNC_MMAP
 
 AC_SEARCH_LIBS([dlopen], [dl])
 

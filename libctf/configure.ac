@@ -73,7 +73,7 @@ case "${host}" in
   ;;
 esac
 
-GCC_AC_FUNC_MMAP
+AC_FUNC_MMAP
 # Needed for BFD capability checks.
 AC_SEARCH_LIBS(dlsym, dl)
 AM_ZLIB

@@ -1,6 +1,6 @@
-# generated automatically by aclocal 1.15.1 -*- Autoconf -*-
+# generated automatically by aclocal 1.19 -*- Autoconf -*-
 
-# Copyright (C) 1996-2017 Free Software Foundation, Inc.
+# Copyright (C) 1996-2026 Free Software Foundation, Inc.
 
 # This file is free software; the Free Software Foundation
 # gives unlimited permission to copy and/or distribute it,
@@ -18,7 +18,6 @@ m4_include([../config/clang-plugin.m4])
 m4_include([../config/enable.m4])
 m4_include([../config/gcc-plugin.m4])
 m4_include([../config/hwcaps.m4])
-m4_include([../config/mmap.m4])
 m4_include([../config/no-executables.m4])
 m4_include([../config/override.m4])
 m4_include([../config/picflag.m4])
