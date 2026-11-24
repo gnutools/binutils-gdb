@@ -4714,6 +4714,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c23" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -4763,6 +4769,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c11" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -4812,6 +4824,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c99" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -4861,6 +4879,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c89" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -12547,7 +12571,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 12550 "configure"
+#line 12574 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H
@@ -12655,7 +12679,7 @@ else
   lt_dlunknown=0; lt_dlno_uscore=1; lt_dlneed_uscore=2
   lt_status=$lt_dlunknown
   cat > conftest.$ac_ext <<_LT_EOF
-#line 12658 "configure"
+#line 12682 "configure"
 #include "confdefs.h"
 
 #if HAVE_DLFCN_H

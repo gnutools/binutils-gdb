@@ -53,6 +53,41 @@ m4_if(m4_index([..wi.d.], [.d.]), [-1],
   [m4_fatal(m4_do([m4 with buggy strstr detected.  Please install
 GNU M4 1.4.16 or newer and set the M4 environment variable]))])
 
+dnl Patch for https://savannah.gnu.org/support/?111400
+dnl From upstream commit f81112068475c15d9acd42c7a3716b98134d6e14
+m4_if(m4_defn([m4_PACKAGE_VERSION]), [2.73], [
+# _AC_PROG_CC_STDC_EDITION_TRY(EDITION)
+# -------------------------------------
+# Subroutine of _AC_PROG_CC_STDC_EDITION.  Not to be called directly.
+#
+m4_define([_AC_PROG_CC_STDC_EDITION_TRY],
+[AC_LANG_ASSERT([C])]dnl
+[AC_REQUIRE([_AC_C_C$1_TEST_PROGRAM])]dnl
+[AS_IF([test x$ac_prog_cc_stdc = xno],
+[AC_MSG_CHECKING([for $CC option to enable C$1 features])
+AC_CACHE_VAL([ac_cv_prog_cc_c$1],
+[ac_cv_prog_cc_c$1=no
+ac_save_CC=$CC
+AC_LANG_CONFTEST([AC_LANG_DEFINES_PROVIDED][$][ac_c_conftest_c$1_program])
+for ac_arg in '' m4_normalize(m4_defn([_AC_C_C$1_OPTIONS]))
+do
+  CC="$ac_save_CC $ac_arg"
+  _AC_COMPILE_IFELSE([], [ac_cv_prog_cc_c$1=$ac_arg])
+  test "x$ac_cv_prog_cc_c$1" != "xno" && break
+  AS_CASE([" $ac_save_CC $CFLAGS"], [[*[[:space:]]-std[:=]*]], [break])
+done
+rm -f conftest.$ac_ext
+CC=$ac_save_CC])
+AS_IF([test "x$ac_cv_prog_cc_c$1" = xno],
+  [AC_MSG_RESULT([unsupported])],
+  [AS_IF([test "x$ac_cv_prog_cc_c$1" = x],
+    [AC_MSG_RESULT([none needed])],
+    [AC_MSG_RESULT([$ac_cv_prog_cc_c$1])
+     CC="$CC $ac_cv_prog_cc_c$1"])
+  ac_cv_prog_cc_stdc=$ac_cv_prog_cc_c$1
+  ac_prog_cc_stdc=c$1])])
+]) # _AC_PROG_CC_STDC_EDITION_TRY
+])
 
 dnl Fix 2.64 cross compile detection for AVR and RTEMS
 dnl by not trying to compile fopen.

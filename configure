@@ -5859,6 +5859,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c23" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -5908,6 +5914,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c11" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -5957,6 +5969,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c99" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
@@ -6006,6 +6024,12 @@ then :
 fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam
   test "x$ac_cv_prog_cc_c89" != "xno" && break
+  case " $ac_save_CC $CFLAGS" in #(
+  *[[:space:]]-std[:=]*) :
+    break ;; #(
+  *) :
+     ;;
+esac
 done
 rm -f conftest.$ac_ext
 CC=$ac_save_CC ;;
